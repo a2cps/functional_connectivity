@@ -1,0 +1,280 @@
+name,cluster,pain_cluster,value
+,FPN:SFG,,1
+"Lt. superior frontal gyrus (BA8, medial)",FPN:SFG,,2
+"Rt. superior frontal gyrus (BA8, medial)",FPN:SFG,,3
+"Lt. superior frontal gyrus (BA8, dorsolateral)",FPN:SFG,,4
+"Rt. superior frontal gyrus (BA8, dorsolateral)",DMN:SFG,,5
+"Lt. superior frontal gyrus (BA9, lateral)",DMN:SFG,,6
+"Rt. superior frontal gyrus (BA9, lateral)",DAN:SFG,,7
+"Lt. superior frontal gyrus (BA6, dorsolateral)",DAN:SFG,,8
+"Rt. superior frontal gyrus (BA6, dorsolateral)",SMN:SFG,,9
+"Lt. superior frontal gyrus (BA6, medial)",SMN:SFG,,10
+"Rt. superior frontal gyrus (BA6, medial)",DMN:SFG,dmPFC,11
+"Lt. superior frontal gyrus (BA9, medial)",DMN:SFG,dmPFC,12
+"Rt. superior frontal gyrus (BA9, medial)",DMN:SFG,vmPFC,13
+"Lt. superior frontal gyrus (BA10, medial)",DMN:SFG,vmPFC,14
+"Rt. superior frontal gyrus (BA10, medial)",FPN:MFG,dlPFC,15
+"Lt. middle frontal gyrus (BA9/46, dorsal)",FPN:MFG,dlPFC,16
+"Rt. middle frontal gyrus (BA9/46, dorsal)",FPN:MFG,,17
+"Lt. middle frontal gyrus (IFJ, inferior frontal junction)",FPN:MFG,,18
+"Rt. middle frontal gyrus (IFJ, inferior frontal junction)",FPN:MFG,,19
+Lt. middle frontal gyrus (BA46),FPN:MFG,,20
+Rt. middle frontal gyrus (BA46),FPN:MFG,dlPFC,21
+"Lt. middle frontal gyrus (BA9/46, ventral)",FPN:MFG,dlPFC,22
+"Rt. middle frontal gyrus (BA9/46, ventral)",FPN:MFG,,23
+"Lt. middle frontal gyrus (BA8, ventrolateral)",FPN:MFG,,24
+"Rt. middle frontal gyrus (BA8, ventrolateral)",DAN:MFG,,25
+"Lt. middle frontal gyrus (BA6, ventrolateral)",DAN:MFG,,26
+"Rt. middle frontal gyrus (BA6, ventrolateral)",DMN:MFG,,27
+"Lt. middle frontal gyrus (BA10, lateral)",DMN:MFG,,28
+"Rt. middle frontal gyrus (BA10, lateral)",DAN:IFG,,29
+"Lt. inferior frontal gyrus (BA44, dorsal)",DAN:IFG,,30
+"Rt. inferior frontal gyrus (BA44, dorsal)",FPN:IFG,,31
+"Lt. inferior frontal gyrus (IFS, inferior frontal sulcus)",FPN:IFG,,32
+"Rt. inferior frontal gyrus (IFS, inferior frontal sulcus)",DMN:IFG,,33
+"Lt. inferior frontal gyrus (BA45, caudal)",DMN:IFG,,34
+"Rt. inferior frontal gyrus (BA45, caudal)",DMN:IFG,,35
+"Lt. inferior frontal gyrus (BA45, rostral)",DMN:IFG,,36
+"Rt. inferior frontal gyrus (BA45, rostral)",VAN:IFG,,37
+"Lt. inferior frontal gyrus (BA44, opercular)",VAN:IFG,,38
+"Rt. inferior frontal gyrus (BA44, opercular)",DMN:IFG,,39
+"Lt. inferior frontal gyrus (BA44, ventral)",DMN:IFG,,40
+"Rt. inferior frontal gyrus (BA44, ventral)",DMN:OrG,vmPFC,41
+"Lt. orbital gyrus (BA14, medial)",DMN:OrG,vmPFC,42
+"Rt. orbital gyrus (BA14, medial)",DMN:OrG,,43
+"Lt. orbital gyrus (BA12/47, orbital)",DMN:OrG,,44
+"Rt. orbital gyrus (BA12/47, orbital)",LN:OrG,,45
+"Lt. orbital gyrus (BA11, lateral)",LN:OrG,,46
+"Rt. orbital gyrus (BA11, lateral)",LN:OrG,,47
+"Lt. orbital gyrus (BA11, medial)",LN:OrG,,48
+"Rt. orbital gyrus (BA11, medial)",LN:OrG,,49
+Lt. orbital gyrus (BA13),LN:OrG,,50
+Rt. orbital gyrus (BA13),DMN:OrG,,51
+"Lt. orbital gyrus (BA12/47, lateral)",DMN:OrG,,52
+"Rt. orbital gyrus (BA12/47, lateral)",SMN:PrG,,53
+"Lt. precentral gyrus (BA4, head and face)",SMN:PrG,,54
+"Rt. precentral gyrus (BA4, head and face)",SMN:PrG,,55
+"Lt. precentral gyrus (BA6, caudal dorsolateral)",SMN:PrG,,56
+"Rt. precentral gyrus (BA6, caudal dorsolateral)",SMN:PrG,,57
+"Lt. precentral gyrus (BA4, upper limb)",SMN:PrG,,58
+"Rt. precentral gyrus (BA4, upper limb)",SMN:PrG,,59
+"Lt. precentral gyrus (BA4, trunk)",SMN:PrG,,60
+"Rt. precentral gyrus (BA4, trunk)",VAN:PrG,,61
+"Lt. precentral gyrus (BA4, tongue and larynx)",VAN:PrG,,62
+"Rt. precentral gyrus (BA4, tongue and larynx)",VAN:PrG,,63
+"Lt. precentral gyrus (BA6, caudal ventrolateral)",VAN:PrG,,64
+"Rt. precentral gyrus (BA6, caudal ventrolateral)",VAN:PCL,,65
+"Lt. paracentral lobule (BA1/2/3, lower limb)",VAN:PCL,,66
+"Rt. paracentral lobule (BA1/2/3, lower limb)",SMN:PCL,,67
+"Lt. paracentral lobule (BA4, lower limb)",SMN:PCL,,68
+"Rt. paracentral lobule (BA4, lower limb)",LN:STG,,69
+"Lt. superior temporal gyrus (BA38, medial)",LN:STG,,70
+"Rt. superior temporal gyrus (BA38, medial)",SMN:STG,,71
+Lt. superior temporal gyrus (BA41/42),SMN:STG,,72
+Rt. superior temporal gyrus (BA41/42),SMN:STG,,73
+Lt. superior temporal gyrus (Te1.0 and Te1.2),SMN:STG,,74
+Rt. superior temporal gyrus (Te1.0 and Te1.2),DMN:STG,,75
+"Lt. superior temporal gyrus (BA22, caudal)",DMN:STG,,76
+"Rt. superior temporal gyrus (BA22, caudal)",LN:STG,,77
+"Lt. superior temporal gyrus (BA38, lateral)",LN:STG,,78
+"Rt. superior temporal gyrus (BA38, lateral)",DMN:STG,,79
+"Lt. superior temporal gyrus (BA22, rostral)",DMN:STG,,80
+"Rt. superior temporal gyrus (BA22, rostral)",DMN:MTG,,81
+"Lt. middle temporal gyrus (BA21, caudal)",DMN:MTG,,82
+"Rt. middle temporal gyrus (BA21, caudal)",DMN:MTG,,83
+"Lt. middle temporal gyrus (BA21, rostral)",DMN:MTG,,84
+"Rt. middle temporal gyrus (BA21, rostral)",DAN:MTG,,85
+"Lt. middle temporal gyrus (BA37, dorsolateral)",DAN:MTG,,86
+"Rt. middle temporal gyrus (BA37, dorsolateral)",DMN:MTG,,87
+"Lt. middle temporal gyrus (aSTS, anterior superior temporal sulcus)",DMN:MTG,,88
+"Rt. middle temporal gyrus (aSTS, anterior superior temporal sulcus)",LN:ITG,,89
+"Lt. inferior temporal gyrus (BA20, intermediate ventral)",LN:ITG,,90
+"Rt. inferior temporal gyrus (BA20, intermediate ventral)",DAN:ITG,,91
+"Lt. inferior temporal gyrus (BA37, extreme lateroventral)",DAN:ITG,,92
+"Rt. inferior temporal gyrus (BA37, extreme lateroventral)",LN:ITG,,93
+"Lt. inferior temporal gyrus (BA20, rostral)",LN:ITG,,94
+"Rt. inferior temporal gyrus (BA20, rostral)",DMN:ITG,,95
+"Lt. inferior temporal gyrus (BA20, intermediate lateral)",DMN:ITG,,96
+"Rt. inferior temporal gyrus (BA20, intermediate lateral)",DAN:ITG,,97
+"Lt. inferior temporal gyrus (BA37, ventrolateral)",DAN:ITG,,98
+"Rt. inferior temporal gyrus (BA37, ventrolateral)",FPN:ITG,,99
+"Lt. inferior temporal gyrus (BA20, caudolateral)",FPN:ITG,,100
+"Rt. inferior temporal gyrus (BA20, caudolateral)",LN:ITG,,101
+"Lt. inferior temporal gyrus (BA20, caudoventral)",LN:ITG,,102
+"Rt. inferior temporal gyrus (BA20, caudoventral)",LN:FuG,,103
+"Lt. fusiform gyrus (BA20, rostroventral)",LN:FuG,,104
+"Rt. fusiform gyrus (BA20, rostroventral)",VN:FuG,,105
+"Lt. fusiform gyrus (BA37, medioventral)",VN:FuG,,106
+"Rt. fusiform gyrus (BA37, medioventral)",DAN:FuG,,107
+"Lt. fusiform gyrus (BA37, lateroventral)",DAN:FuG,,108
+"Rt. fusiform gyrus (BA37, lateroventral)",LN:PhG,,109
+"Lt. parahippocampal gyrus (BA35/36, rostral)",LN:PhG,,110
+"Rt. parahippocampal gyrus (BA35/36, rostral)",DMN:PhG,,111
+"Lt. parahippocampal gyrus (BA35/36, caudal)",DMN:PhG,,112
+"Rt. parahippocampal gyrus (BA35/36, caudal)",DMN:PhG,,113
+"Lt. parahippocampal gyrus (area TL, lateral PPHC, lateral posterior parahippocampal gyrus)",DMN:PhG,,114
+"Rt. parahippocampal gyrus (area TL, lateral PPHC, lateral posterior parahippocampal gyrus)",DMN:PhG,,115
+"Lt. parahippocampal gyrus (BA28/34, EC, entorhinal cortex)",DMN:PhG,,116
+"Rt. parahippocampal gyrus (BA28/34, EC, entorhinal cortex)",LN:PhG,,117
+"Lt. parahippocampal gyrus (area TI, temporal agranular insular cortex)",LN:PhG,,118
+"Rt. parahippocampal gyrus (area TI, temporal agranular insular cortex)",VN:PhG,,119
+"Lt. parahippocampal gyrus (area TH, medial PPHC, medial posterior parahippocampal gyrus)",VN:PhG,,120
+"Rt. parahippocampal gyrus (area TH, medial PPHC, medial posterior parahippocampal gyrus)",DMN:pSTS,,121
+"Lt. posterior superior temporal sulcus (rpSTS, rostroposterior superior temporal sulcus)",DMN:pSTS,,122
+"Rt. posterior superior temporal sulcus (rpSTS, rostroposterior superior temporal sulcus)",DMN:pSTS,,123
+"Lt. posterior superior temporal sulcus (cpSTS, caudoposterior superior temporal sulcus)",DMN:pSTS,,124
+"Rt. posterior superior temporal sulcus (cpSTS, caudoposterior superior temporal sulcus)",DAN:SPL,,125
+"Lt. superior parietal lobule (BA7, rostral)",DAN:SPL,,126
+"Rt. superior parietal lobule (BA7, rostral)",DAN:SPL,,127
+"Lt. superior parietal lobule (BA7, caudal)",DAN:SPL,,128
+"Rt. superior parietal lobule (BA7, caudal)",DAN:SPL,,129
+"Lt. superior parietal lobule (BA5, lateral)",DAN:SPL,,130
+"Rt. superior parietal lobule (BA5, lateral)",DAN:SPL,,131
+"Lt. superior parietal lobule (BA7, postcentral)",DAN:SPL,,132
+"Rt. superior parietal lobule (BA7, postcentral)",DAN:SPL,,133
+"Lt. superior parietal lobule (BA7, intraparietal)",DAN:SPL,,134
+"Rt. superior parietal lobule (BA7, intraparietal)",DAN:IPL,,135
+"Lt. inferior parietal lobule (BA39, caudal, area PGp)",DAN:IPL,,136
+"Rt. inferior parietal lobule (BA39, caudal, area PGp)",FPN:IPL,,137
+"Lt. inferior parietal lobule (BA39, rostrodorsal, area Hip3)",FPN:IPL,,138
+"Rt. inferior parietal lobule (BA39, rostrodorsal, area Hip3)",DAN:IPL,,139
+"Lt. inferior parietal lobule (BA40, rostrodorsal, area PFt)",DAN:IPL,,140
+"Rt. inferior parietal lobule (BA40, rostrodorsal, area PFt)",VAN:IPL,,141
+"Lt. inferior parietal lobule (BA40, caudal, area PFm)",VAN:IPL,,142
+"Rt. inferior parietal lobule (BA40, caudal, area PFm)",DMN:IPL,,143
+"Lt. inferior parietal lobule (BA39, rostroventral, area PGa)",DMN:IPL,,144
+"Rt. inferior parietal lobule (BA39, rostroventral, area PGa)",VAN:IPL,S2,145
+"Lt. inferior parietal lobule (BA40, rostroventral, area PFop)",VAN:IPL,S2,146
+"Rt. inferior parietal lobule (BA40, rostroventral, area PFop)",FPN:PCun,,147
+"Lt. precuneus (BA7, medial, area PEp)",FPN:PCun,,148
+"Rt. precuneus (BA7, medial, area PEp)",VAN:PCun,,149
+"Lt. precuneus (BA5, medial, area PEm)",VAN:PCun,,150
+"Rt. precuneus (BA5, medial, area PEm)",DMN:PCun,,151
+"Lt. precuneus (area PEr, dmPOS, dorsomedial parietooccipital sulcus)",DMN:PCun,,152
+"Rt. precuneus (area PEr, dmPOS, dorsomedial parietooccipital sulcus)",DMN:PCun,,153
+"Lt. precuneus (BA31, area Lc1)",DMN:PCun,,154
+"Rt. precuneus (BA31, area Lc1)",SMN:PoG,S1,155
+"Lt. postcentral gyrus (BA1/2/3, upper limb, head, and face)",SMN:PoG,S1,156
+"Rt. postcentral gyrus (BA1/2/3, upper limb, head, and face)",SMN:PoG,S2,157
+"Lt. postcentral gyrus (BA1/2/3, tongue and larynx)",SMN:PoG,S2,158
+"Rt. postcentral gyrus (BA1/2/3, tongue and larynx)",SMN:PoG,S1,159
+Lt. postcentral gyrus (BA2),SMN:PoG,S1,160
+Rt. postcentral gyrus (BA2),SMN:PoG,S1,161
+"Lt. postcentral gyrus (BA1/2/3, trunk)",SMN:PoG,S1,162
+"Rt. postcentral gyrus (BA1/2/3, trunk)",SMN:INS,dpINS,163
+"Lt. insular gyrus (G, hypergranular)",SMN:INS,dpINS,164
+"Rt. insular gyrus (G, hypergranular)",VAN:INS,aINS,165
+"Lt. insular gyrus (vIa, ventral agranular)",VAN:INS,aINS,166
+"Rt. insular gyrus (vIa, ventral agranular)",VAN:INS,aINS,167
+"Lt. insular gyrus (dIa, dorsal agranular)",VAN:INS,aINS,168
+"Rt. insular gyrus (dIa, dorsal agranular)",VAN:INS,,169
+"Lt. insular gyrus (vId/vIg, ventral dysgranular and granular)",VAN:INS,,170
+"Rt. insular gyrus (vId/vIg, ventral dysgranular and granular)",VAN:INS,,171
+"Lt. insular gyrus (dIg, dorsal granular)",VAN:INS,,172
+"Rt. insular gyrus (dIg, dorsal granular)",VAN:INS,,173
+"Lt. insular gyrus (dId, dorsal dysgranular)",VAN:INS,,174
+"Rt. insular gyrus (dId, dorsal dysgranular)",DMN:CG,,175
+"Lt. cingulate gyrus (BA23, dorsal)",DMN:CG,,176
+"Rt. cingulate gyrus (BA23, dorsal)",VAN:CG,,177
+"Lt. cingulate gyrus (BA24, rostroventral)",VAN:CG,,178
+"Rt. cingulate gyrus (BA24, rostroventral)",VAN:CG,dACC,179
+"Lt. cingulate gyrus (BA32, pregenual)",VAN:CG,dACC,180
+"Rt. cingulate gyrus (BA32, pregenual)",DMN:CG,,181
+"Lt. cingulate gyrus (BA23, ventral)",DMN:CG,,182
+"Rt. cingulate gyrus (BA23, ventral)",VAN:CG,,183
+"Lt. cingulate gyrus (BA24, caudodorsal)",VAN:CG,,184
+"Rt. cingulate gyrus (BA24, caudodorsal)",VAN:CG,,185
+"Lt. cingulate gyrus (BA23, caudal)",VAN:CG,,186
+"Rt. cingulate gyrus (BA23, caudal)",DMN:CG,vmPFC,187
+"Lt. cingulate gyrus (BA32, subgenual)",DMN:CG,vmPFC,188
+"Rt. cingulate gyrus (BA32, subgenual)",VN:MVOcC,,189
+"Lt. medioventral occipital cortex (cLinG, caudal lingual gyrus)",VN:MVOcC,,190
+"Rt. medioventral occipital cortex (cLinG, caudal lingual gyrus)",VN:MVOcC,,191
+"Lt. medioventral occipital cortex (rCunG, rostral cuneus gyrus)",VN:MVOcC,,192
+"Rt. medioventral occipital cortex (rCunG, rostral cuneus gyrus)",VN:MVOcC,,193
+"Lt. medioventral occipital cortex (cCunG, caudal cuneus gyrus)",VN:MVOcC,,194
+"Rt. medioventral occipital cortex (cCunG, caudal cuneus gyrus)",VN:MVOcC,,195
+"Lt. medioventral occipital cortex (rLinG, rostral lingual gyrus)",VN:MVOcC,,196
+"Rt. medioventral occipital cortex (rLinG, rostral lingual gyrus)",VN:MVOcC,,197
+"Lt. medioventral occipital cortex (vmPOS, ventromedial parietooccipital gyrus)",VN:MVOcC,,198
+"Rt. medioventral occipital cortex (vmPOS, ventromedial parietooccipital gyrus)",VN:LOcC,,199
+"Lt. lateral occipital cortex (mOccG, middle occipital gyrus)",VN:LOcC,,200
+"Rt. lateral occipital cortex (mOccG, middle occipital gyrus)",VN:LOcC,,201
+Lt. lateral occipital cortex (area V5/MT+),VN:LOcC,,202
+Rt. lateral occipital cortex (area V5/MT+),VN:LOcC,,203
+"Lt. lateral occipital cortex (OPC, occipital polar cortex)",VN:LOcC,,204
+"Rt. lateral occipital cortex (OPC, occipital polar cortex)",VN:LOcC,,205
+"Lt. lateral occipital cortex (iOccG, inferior occipital gyrus)",VN:LOcC,,206
+"Rt. lateral occipital cortex (iOccG, inferior occipital gyrus)",VN:LOcC,,207
+"Lt. lateral occipital cortex (msOccG, medial superior occipital gyrus)",VN:LOcC,,208
+"Rt. lateral occipital cortex (msOccG, medial superior occipital gyrus)",VN:LOcC,,209
+"Lt. lateral occipital cortex (lsOccG, lateral superior occipital gyrus)",VN:LOcC,,210
+"Rt. lateral occipital cortex (lsOccG, lateral superior occipital gyrus)",SCTX:Amyg,Amyg,211
+"Lt. amygdala (mAmyg, medial amygdala)",SCTX:Amyg,Amyg,212
+"Rt. amygdala (mAmyg, medial amygdala)",SCTX:Amyg,Amyg,213
+"Lt. amygdala (lAmyg, lateral amygdala)",SCTX:Amyg,Amyg,214
+"Rt. amygdala (lAmyg, lateral amygdala)",SCTX:Hipp,Hipp,215
+"Lt. hippocampus (rHipp, rostral hippocampus)",SCTX:Hipp,Hipp,216
+"Rt. hippocampus (rHipp, rostral hippocampus)",SCTX:Hipp,Hipp,217
+"Lt. hippocampus (cHipp, caudal hippocampus)",SCTX:Hipp,Hipp,218
+"Rt. hippocampus (cHipp, caudal hippocampus)",SCTX:BG,,219
+"Lt. basal ganglia (vCa, ventral caudate)",SCTX:BG,,220
+"Rt. basal ganglia (vCa, ventral caudate)",SCTX:BG,,221
+"Lt. basal ganglia (GP, globus pallidus)",SCTX:BG,,222
+"Rt. basal ganglia (GP, globus pallidus)",SCTX:BG,VStr,223
+"Lt. basal ganglia (NAc, nucleus accumbens)",SCTX:BG,VStr,224
+"Rt. basal ganglia (NAc, nucleus accumbens)",SCTX:BG,,225
+"Lt. basal ganglia (vmPu, ventromedial putamen)",SCTX:BG,,226
+"Rt. basal ganglia (vmPu, ventromedial putamen)",SCTX:BG,,227
+"Lt. basal ganglia (dCa, dorsal caudate)",SCTX:BG,,228
+"Rt. basal ganglia (dCa, dorsal caudate)",SCTX:BG,,229
+"Lt. basal ganglia (dlPu, dorsolateral putamen)",SCTX:BG,,230
+"Rt. basal ganglia (dlPu, dorsolateral putamen)",SCTX:Tha,Thal,231
+"Lt. thalamus (mPFtha, medial prefrontal thalamus)",SCTX:Tha,Thal,232
+"Rt. thalamus (mPFtha, medial prefrontal thalamus)",SCTX:Tha,Thal,233
+"Lt. thalamus (mPMtha, premotor thalamus)",SCTX:Tha,Thal,234
+"Rt. thalamus (mPMtha, premotor thalamus)",SCTX:Tha,Thal,235
+"Lt. thalamus (Stha, sensory thalamus)",SCTX:Tha,Thal,236
+"Rt. thalamus (Stha, sensory thalamus)",SCTX:Tha,Thal,237
+"Lt. thalamus (rTha, rostral temporal thalamus)",SCTX:Tha,Thal,238
+"Rt. thalamus (rTha, rostral temporal thalamus)",SCTX:Tha,Thal,239
+"Lt. thalamus (PPtha, posterior parietal thalamus)",SCTX:Tha,Thal,240
+"Rt. thalamus (PPtha, posterior parietal thalamus)",SCTX:Tha,Thal,241
+"Lt. thalamus (Otha, occipital thalamus)",SCTX:Tha,Thal,242
+"Rt. thalamus (Otha, occipital thalamus)",SCTX:Tha,Thal,243
+"Lt. thalamus (cTha, caudal temporal thalamus)",SCTX:Tha,Thal,244
+"Rt. thalamus (cTha, caudal temporal thalamus)",SCTX:Tha,Thal,245
+"Lt. thalamus (lPFtha, lateral prefrontal thalamus)",SCTX:Tha,Thal,246
+"Rt. thalamus (lPFtha, lateral prefrontal thalamus)",BS/CB:CB,,247
+Lt. cerebellum (lobule I-IV),BS/CB:CB,,248
+Rt. cerebellum (lobule I-IV),BS/CB:CB,,249
+Lt. cerebellum (lobule V),BS/CB:CB,,250
+Rt. cerebellum (lobule V),BS/CB:CB,,251
+Lt. cerebellum (lobule VI),BS/CB:CB,,252
+Vermis. cerebellum (lobule VI),BS/CB:CB,,253
+Rt. cerebellum (lobule VI),BS/CB:CB,,254
+Lt. cerebellum (crus I),BS/CB:CB,,255
+Rt. cerebellum (crus I),BS/CB:CB,,256
+Lt. cerebellum (crus II),BS/CB:CB,,257
+Vermis. cerebellum (crus II),BS/CB:CB,,258
+Rt. cerebellum (crus II),BS/CB:CB,,259
+Lt. cerebellum (lobule VIIb),BS/CB:CB,,260
+Vermis. cerebellum (lobule VIIb),BS/CB:CB,,261
+Rt. cerebellum (lobule VIIb),BS/CB:CB,,262
+Lt. cerebellum (lobule VIIIa),BS/CB:CB,,263
+Vermis. cerebellum (lobule VIIIa),BS/CB:CB,,264
+Rt. cerebellum (lobule VIIIa),BS/CB:CB,,265
+Lt. cerebellum (lobule VIIIb),BS/CB:CB,,266
+Vermis. cerebellum (lobule VIIIb),BS/CB:CB,,267
+Rt. cerebellum (lobule VIIIb),BS/CB:CB,,268
+Lt. cerebellum (lobule IX),BS/CB:CB,,269
+Vermis. cerebellum (lobule IX),BS/CB:CB,,270
+Rt. cerebellum (lobule IX),BS/CB:CB,,271
+Lt. cerebellum (lobule X),BS/CB:CB,,272
+Vermis. cerebellum (lobule X),BS/CB:CB,,273
+Rt. cerebellum (lobule X),BS/CB:Hypotha,,274
+Hypothalamus,BS/CB:BS,Brainstem,275
+Brainstem,BS/CB:BS,PAG,276
+Periaqueductal gray,BS/CB:BS,,277
+Lt. substantia nigra,BS/CB:BS,,278
+Rt. substantia nigra,BS/CB:BS,,279
