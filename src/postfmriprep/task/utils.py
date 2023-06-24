@@ -5,7 +5,6 @@ from pathlib import Path
 import ancpbids
 import pandas as pd
 import prefect
-from pyarrow import dataset
 
 from postfmriprep import utils
 
@@ -34,18 +33,6 @@ def write_parquet(
             dataframe.to_parquet(f, index=False)
             written = Path(f.name)
     return written
-
-
-@prefect.task
-def combine_parquet(tables: list[Path], base_dir: Path) -> Path:
-    d = dataset.dataset(tables, format="parquet")
-    dataset.write_dataset(
-        data=d,
-        base_dir=base_dir,
-        format="parquet",
-        existing_data_behavior="delete_matching",
-    )
-    return base_dir
 
 
 @prefect.task

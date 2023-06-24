@@ -14,7 +14,6 @@ from typing import (
 import nibabel as nb
 import numpy as np
 import pandas as pd
-import polars as pl
 
 
 def img_stem(img: Path) -> str:
@@ -84,7 +83,7 @@ def cache_nii(f: Callable[P, nb.Nifti1Image]) -> Callable[Concatenate[Path, P], 
 
 
 def cache_dataframe(
-    f: Callable[P, pd.DataFrame | pl.DataFrame]
+    f: Callable[P, pd.DataFrame ]
 ) -> Callable[Concatenate[Path | None, P], Path]:
     def wrapper(_filename: Path | None, *args: P.args, **kwargs: P.kwargs) -> Path:
         if _filename and _filename.exists():
