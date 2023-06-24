@@ -5,7 +5,8 @@ import prefect_dask
 from dask import config
 
 from postfmriprep.flows.connectivity import connectivity_flow
-from postfmriprep.flows.signature import signature_flow
+
+# from postfmriprep.flows.signature import signature_flow
 
 
 def _main(
@@ -24,9 +25,7 @@ def _main(
     config.set({"distributed.worker.memory.terminate": False})
     config.set({"distributed.comm.timeouts.connect": "90s"})
     config.set({"distributed.comm.timeouts.tcp": "90s"})
-    # config.set(
-    #     {"distributed.nanny.pre-spawn-environ.MALLOC_TRIM_THRESHOLD_": 0}
-    # )
+
     for out in output_dirs:
         if not out.exists():
             out.mkdir()
@@ -41,15 +40,15 @@ def _main(
         )
     )(subdirs=fmriprep_subdirs, outdirs=output_dirs, return_state=True)
 
-    signature_flow.with_options(
-        task_runner=prefect_dask.DaskTaskRunner(
-            cluster_kwargs={
-                "n_workers": n_workers,
-                "threads_per_worker": threads_per_worker,
-                "dashboard_address": None,
-            }
-        )
-    )(subdirs=fmriprep_subdirs, outdirs=output_dirs, return_state=True)
+    # signature_flow.with_options(
+    #     task_runner=prefect_dask.DaskTaskRunner(
+    #         cluster_kwargs={
+    #             "n_workers": n_workers,
+    #             "threads_per_worker": threads_per_worker,
+    #             "dashboard_address": None,
+    #         }
+    #     )
+    # )(subdirs=fmriprep_subdirs, outdirs=output_dirs, return_state=True)
 
 
 @click.command(context_settings={"ignore_unknown_options": True})

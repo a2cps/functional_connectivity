@@ -82,6 +82,7 @@ def update_confounds(
     ],
     label: typing.Literal["CSF", "WM", "WM+CSF"] | None = "WM+CSF",
     extra: Path | None = None,
+    standardize: bool = True,
 ) -> pd.DataFrame:
     confounds_df = pd.read_csv(
         confounds, delim_whitespace=True, usecols=usecols
@@ -104,6 +105,8 @@ def update_confounds(
     else:
         out = components_df
     out.columns = out.columns.astype(str)
+    if standardize:
+        out = (out - out.mean()) / out.std(ddof=1)
     return out
 
 
