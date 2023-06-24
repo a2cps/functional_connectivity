@@ -4,7 +4,7 @@ import click
 import prefect_dask
 from dask import config
 
-from postfmriprep.flows.connectivity import connectivity_flow
+from functional_connectivity.flows.connectivity import connectivity_flow
 
 
 def _main(

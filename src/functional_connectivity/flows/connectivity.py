@@ -6,58 +6,42 @@ import nibabel as nb
 import numpy as np
 import pandas as pd
 import prefect
-import pydantic
 from nilearn import maskers, signal
 from nilearn.connectome import ConnectivityMeasure, connectivity_matrices
 from pydantic.dataclasses import dataclass
 from sklearn import covariance
 
-from postfmriprep import datasets, utils
-from postfmriprep.task import compcor
-from postfmriprep.task import utils as task_utils
+from functional_connectivity import datasets, utils
+from functional_connectivity.task import compcor
+from functional_connectivity.task import utils as task_utils
 
-# TODO: make it easy to add informative labels
 # TODO: integrate into app
 
 
 @dataclass(frozen=True)
 class Coordinate:
-    label: int
+    region: int
     seed: tuple[int, int, int]
-
-
-@dataclass(frozen=True, config={"arbitrary_types_allowed": True})
-class Labels:
-    labels_img: pydantic.FilePath
-    labels: pd.DataFrame
 
 
 def df_to_coordinates(dataframe: pd.DataFrame) -> frozenset[Coordinate]:
     coordinates = set()
     for row in dataframe.itertuples():
         coordinates.add(
-            Coordinate(label=row.region, seed=(row.x, row.y, row.z))
+            Coordinate(region=row.region, seed=(row.x, row.y, row.z))
         )
 
     return frozenset(coordinates)
 
 
 def get_baliki_coordinates() -> frozenset[Coordinate]:
-    coordinates = datasets.get_atlas_baliki()
+    coordinates = datasets.get_coordinates_baliki()
     return df_to_coordinates(coordinates)
 
 
 def get_power_coordinates() -> frozenset[Coordinate]:
-    from nilearn import datasets as nilearn_datasets
-
-    rois: pd.DataFrame = nilearn_datasets.fetch_coords_power_2011(
-        legacy_format=False
-    ).rois
-    rois.query(
-        "not roi in [127, 183, 184, 185, 243, 244, 245, 246]", inplace=True
-    )
-    rois.rename(columns={"roi": "label"}, inplace=True)
-    return df_to_coordinates(rois)
+    coordinates = datasets.get_coordinates_power2011()
+    return df_to_coordinates(coordinates)
 
 
 def _update_labels(
@@ -127,7 +111,7 @@ def get_coordinates_connectivity(
 
     return _do_connectivity(
         time_series=time_series,
-        labels=[x.label for x in coordinates],
+        labels=[x.region for x in coordinates],
         estimator=estimator,
     )
 
@@ -137,7 +121,7 @@ def get_coordinates_connectivity(
 def get_maps_connectivity(
     img: Path,
     confounds_file: Path,
-    maps: Labels,
+    maps: datasets.Labels,
     estimator: covariance.EmpiricalCovariance,
     high_pass: float | None = None,
     low_pass: float | None = None,
@@ -171,7 +155,7 @@ def get_maps_connectivity(
 def get_labels_connectivity(
     img: Path,
     confounds_file: Path,
-    labels: Labels,
+    labels: datasets.Labels,
     estimator: covariance.EmpiricalCovariance,
     high_pass: float | None = None,
     low_pass: float | None = None,
@@ -219,58 +203,36 @@ def _get_probseg(layout, sub, ses, space) -> list[Path]:
     ]
 
 
-def _get_labels() -> dict[str, Labels]:
+def _get_labels() -> dict[str, datasets.Labels]:
     out = {}
     for n in [400]:
         for networks in [7, 17]:
-            data = datasets.get_atlas_schaefer_2018(
-                n_rois=n, resolution_mm=2, yeo_networks=networks
-            )
             out.update(
                 {
-                    f"schaefer_nrois-{n}_resolution-2_networks-{networks}": Labels(
-                        labels_img=data.maps,
-                        labels=data.labels,
+                    f"schaefer_nrois-{n}_resolution-2_networks-{networks}": datasets.get_atlas_schaefer_2018(
+                        n_rois=n, resolution_mm=2, yeo_networks=networks
                     )
                 }
             )
     for resolution in [2]:
-        tmp = datasets.get_fan_atlas_file(resolution=f"{resolution}mm")
-        n_unique = len(np.unique(nb.load(tmp).get_fdata()))
         out.update(
             {
-                f"fan_resolution-{resolution}": Labels(
-                    labels_img=tmp,
-                    labels=pd.DataFrame.from_dict(
-                        {
-                            "region": list(range(1, n_unique)),
-                        }
-                    ),
+                f"fan_resolution-{resolution}": datasets.get_fan_atlas(
+                    resolution=resolution
                 )
             }
         )
     return out
 
 
-def _difumo_labels_to_labeldf(labels: pd.DataFrame) -> pd.DataFrame:
-    return labels[["Component", "Difumo_names"]].rename(
-        columns={
-            "Component": "region",
-            "Difumo_names": "label",
-        }
-    )
-
-
-def _get_maps() -> dict[str, Labels]:
+def _get_maps() -> dict[str, datasets.Labels]:
     out = {}
     for dimension in [64, 128, 256, 512, 1024]:
         for mm in [2]:
-            data = datasets.get_difumo(dimension=dimension, resolution_mm=mm)
             out.update(
                 {
-                    f"difumo_dimension-{dimension}_resolution-{mm}mm": Labels(
-                        labels_img=data.maps,
-                        labels=_difumo_labels_to_labeldf(data.labels),
+                    f"difumo_dimension-{dimension}_resolution-{mm}mm": datasets.get_difumo(
+                        dimension=dimension, resolution_mm=mm
                     )
                 }
             )

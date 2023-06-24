@@ -3,15 +3,14 @@ requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
 
 [project]
-name = "postfmriprep"
+name = "functional_connectivity"
 dynamic = ["version"]
-description = 'Manage A2CPS Data Freezes'
+description = "Functional Connectivity for A2CPS"
 readme = "README.md"
 requires-python = ">=3.10"
-license = "MIT"
 keywords = []
 authors = [
-  { name = "Patrick Sadil", email = "psadil@gmail.com" },
+  { name = "Patrick Sadil", email = "psadil1@jh.edu" },
 ]
 classifiers = [
   "Development Status :: 4 - Beta",
@@ -30,7 +29,6 @@ dependencies = [
   "nilearn",
   "numpy",
   "pandas",
-  "polars",
   "prefect",
   "prefect-dask",
   "pydantic",
@@ -41,12 +39,12 @@ dependencies = [
 ]
 
 [project.urls]
-Documentation = "https://github.com/unknown/postfmriprep#readme"
-Issues = "https://github.com/unknown/postfmriprep/issues"
-Source = "https://github.com/unknown/postfmriprep"
+Documentation = "https://github.com/unknown/functional_connectivity#readme"
+Issues = "https://github.com/unknown/functional_connectivity/issues"
+Source = "https://github.com/unknown/functional_connectivity"
 
 [project.scripts]
-postfmriprep = "postfmriprep.cli.postfmriprep:main"
+functional_connectivity = "functional_connectivity.cli.functional_connectivity:main"
 
 [tool.hatch.version]
 source = "vcs"
@@ -80,7 +78,7 @@ dependencies = [
   "ruff>=0.0.243",
 ]
 [tool.hatch.envs.lint.scripts]
-typing = "mypy --install-types --non-interactive {args:src/postfmriprep tests}"
+typing = "mypy --install-types --non-interactive {args:src/functional_connectivity tests}"
 style = [
   "ruff {args:.}",
   "black --check --diff {args:.}",
@@ -146,7 +144,7 @@ unfixable = [
 ]
 
 [tool.ruff.isort]
-known-first-party = ["postfmriprep"]
+known-first-party = ["functional_connectivity"]
 
 [tool.ruff.flake8-tidy-imports]
 ban-relative-imports = "all"
@@ -156,16 +154,16 @@ ban-relative-imports = "all"
 "tests/**/*" = ["PLR2004", "S101", "TID252"]
 
 [tool.coverage.run]
-source_pkgs = ["postfmriprep", "tests"]
+source_pkgs = ["functional_connectivity", "tests"]
 branch = true
 parallel = true
 omit = [
-  "src/postfmriprep/__about__.py",
+  "src/functional_connectivity/__about__.py",
 ]
 
 [tool.coverage.paths]
-postfmriprep = ["src/postfmriprep", "*/postfmriprep/src/postfmriprep"]
-tests = ["tests", "*/postfmriprep/tests"]
+functional_connectivity = ["src/functional_connectivity", "*/functional_connectivity/src/functional_connectivity"]
+tests = ["tests", "*/functional_connectivity/tests"]
 
 [tool.coverage.report]
 exclude_lines = [

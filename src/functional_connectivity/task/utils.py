@@ -6,7 +6,7 @@ import ancpbids
 import pandas as pd
 import prefect
 
-from postfmriprep import utils
+from functional_connectivity import utils
 
 
 def write_tsv(dataframe: pd.DataFrame, filename: Path | None = None) -> Path:

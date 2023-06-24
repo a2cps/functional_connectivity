@@ -7,7 +7,7 @@ import pandas as pd
 import prefect
 from nibabel import processing
 
-from postfmriprep import utils
+from functional_connectivity import utils
 
 # TODO:
 # - detrend (https://numpy.org/doc/stable/reference/generated/numpy.polynomial.legendre.Legendre.fit.html#numpy.polynomial.legendre.Legendre.fit)
