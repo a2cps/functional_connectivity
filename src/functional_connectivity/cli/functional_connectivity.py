@@ -26,7 +26,7 @@ def _main(
 
     for out in output_dirs:
         if not out.exists():
-            out.mkdir()
+            out.mkdir(parents=True)
 
     connectivity_flow.with_options(
         task_runner=prefect_dask.DaskTaskRunner(
