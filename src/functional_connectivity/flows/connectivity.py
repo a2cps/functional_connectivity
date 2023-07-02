@@ -1,5 +1,6 @@
 from pathlib import Path
 from typing import Iterable
+import tempfile
 
 import ancpbids
 import nibabel as nb
@@ -14,6 +15,8 @@ from sklearn import covariance
 from functional_connectivity import datasets, utils
 from functional_connectivity.task import compcor
 from functional_connectivity.task import utils as task_utils
+
+import pandas as pd
 
 # TODO: integrate into app
 
@@ -282,37 +285,16 @@ def connectivity_flow(
 
     for subdir, out in zip(subdirs, output_dirs):
         layout = ancpbids.BIDSLayout(str(subdir))
-        for sub in layout.get_subjects():
-            for ses in layout.get_sessions(sub=sub):
-                probseg = _get_probseg(
-                    layout=layout, sub=sub, ses=ses, space=space
-                )
-                for task in layout.get_tasks(sub=sub, ses=ses):
-                    for run in layout.get_runs(sub=sub, ses=ses, task=task):
-                        i = task_utils._get(
-                            layout=layout,
-                            filters={
-                                "sub": str(sub),
-                                "ses": str(ses),
-                                "task": str(task),
-                                "run": str(run),
-                                "space": str(space),
-                                "desc": "preproc",
-                                "suffix": "bold",
-                                "extension": ".nii.gz",
-                            },
-                        )
-                        acompcor = compcor.do_compcor.submit(
-                            out
-                            / "acompcor"
-                            / f"sub={sub}"
-                            / f"ses={ses}"
-                            / f"task={task}"
-                            / f"run={run}"
-                            / f"space={space}"
-                            / "part-0.parquet",
-                            img=i,
-                            boldref=task_utils._get(
+        with tempfile.TemporaryDirectory() as _tmpdir:
+            tmpdir = Path(_tmpdir)
+            for sub in layout.get_subjects():
+                for ses in layout.get_sessions(sub=sub):
+                    probseg = _get_probseg(
+                        layout=layout, sub=sub, ses=ses, space=space
+                    )
+                    for task in layout.get_tasks(sub=sub, ses=ses):
+                        for run in layout.get_runs(sub=sub, ses=ses, task=task):
+                            i = task_utils._get(
                                 layout=layout,
                                 filters={
                                     "sub": str(sub),
@@ -320,95 +302,124 @@ def connectivity_flow(
                                     "task": str(task),
                                     "run": str(run),
                                     "space": str(space),
-                                    "suffix": "boldref",
+                                    "desc": "preproc",
+                                    "suffix": "bold",
                                     "extension": ".nii.gz",
                                 },
-                            ),
-                            probseg=probseg,
-                            high_pass=high_pass,
-                            low_pass=low_pass,
-                            n_non_steady_state_tr=n_non_steady_state_tr,
-                        )
+                            )
+                            acompcor = compcor.do_compcor.submit(
+                                out
+                                / "acompcor"
+                                / f"sub={sub}"
+                                / f"ses={ses}"
+                                / f"task={task}"
+                                / f"run={run}"
+                                / f"space={space}"
+                                / "part-0.parquet",
+                                img=i,
+                                boldref=task_utils._get(
+                                    layout=layout,
+                                    filters={
+                                        "sub": str(sub),
+                                        "ses": str(ses),
+                                        "task": str(task),
+                                        "run": str(run),
+                                        "space": str(space),
+                                        "suffix": "boldref",
+                                        "extension": ".nii.gz",
+                                    },
+                                ),
+                                probseg=probseg,
+                                high_pass=high_pass,
+                                low_pass=low_pass,
+                                n_non_steady_state_tr=n_non_steady_state_tr,
+                            )
 
-                        confounds = task_utils.update_confounds.submit(
-                            out
-                            / "connectivity-confounds"
-                            / f"sub={sub}"
-                            / f"ses={ses}"
-                            / f"task={task}"
-                            / f"run={run}"
-                            / "part-0.parquet",
-                            acompcor_file=acompcor,  # type: ignore
-                            confounds=task_utils._get(
-                                layout=layout,
-                                filters={
-                                    "sub": str(sub),
-                                    "ses": str(ses),
-                                    "task": str(task),
-                                    "run": str(run),
-                                    "desc": "confounds",
-                                    "extension": ".tsv",
-                                },
-                            ),
-                            label="WM+CSF",
-                            n_non_steady_state_tr=n_non_steady_state_tr,
-                        )
+                            confounds = task_utils.update_confounds.submit(
+                                out
+                                / "connectivity-confounds"
+                                / f"sub={sub}"
+                                / f"ses={ses}"
+                                / f"task={task}"
+                                / f"run={run}"
+                                / "part-0.parquet",
+                                acompcor_file=acompcor,  # type: ignore
+                                confounds=task_utils._get(
+                                    layout=layout,
+                                    filters={
+                                        "sub": str(sub),
+                                        "ses": str(ses),
+                                        "task": str(task),
+                                        "run": str(run),
+                                        "desc": "confounds",
+                                        "extension": ".tsv",
+                                    },
+                                ),
+                                label="WM+CSF",
+                                n_non_steady_state_tr=n_non_steady_state_tr,
+                            )
 
-                        for e, estimator in estimators.items():
-                            for atlas, label in labels.items():
-                                get_labels_connectivity.submit(
-                                    out
-                                    / "connectivity"
-                                    / f"sub={sub}"
-                                    / f"ses={ses}"
-                                    / f"task={task}"
-                                    / f"run={run}"
-                                    / f"space={space}"
-                                    / f"atlas={atlas}"
-                                    / f"estimator={e}"
-                                    / "part-0.parquet",
-                                    img=i,
-                                    confounds_file=confounds,  # type: ignore
-                                    labels=label,
-                                    high_pass=high_pass,
-                                    low_pass=low_pass,
-                                    estimator=estimator,
-                                )
-                            for atlas, m in maps.items():
-                                get_maps_connectivity.submit(
-                                    out
-                                    / "connectivity"
-                                    / f"sub={sub}"
-                                    / f"ses={ses}"
-                                    / f"task={task}"
-                                    / f"run={run}"
-                                    / f"space={space}"
-                                    / f"atlas={atlas}"
-                                    / f"estimator={e}"
-                                    / "part-0.parquet",
-                                    img=i,
-                                    confounds_file=confounds,  # type: ignore
-                                    maps=m,
-                                    high_pass=high_pass,
-                                    low_pass=low_pass,
-                                    estimator=estimator,
-                                )
-                            for key, value in coordinates.items():
-                                get_coordinates_connectivity.submit(
-                                    out
-                                    / "connectivity"
-                                    / f"sub={sub}"
-                                    / f"ses={ses}"
-                                    / f"task={task}"
-                                    / f"run={run}"
-                                    / f"space={space}"
-                                    / f"atlas={key}"
-                                    / f"estimator={e}"
-                                    / "part-0.parquet",
-                                    img=i,
-                                    coordinates=value,
-                                    confounds_file=confounds,  # type: ignore
-                                    high_pass=high_pass,
-                                    low_pass=low_pass,
-                                    estimator=estimator,
-                                )
+                            for e, estimator in estimators.items():
+                                for atlas, label in labels.items():
+                                    get_labels_connectivity.submit(
+                                        tmpdir
+                                        / "connectivity"
+                                        / f"sub={sub}"
+                                        / f"ses={ses}"
+                                        / f"task={task}"
+                                        / f"run={run}"
+                                        / f"space={space}"
+                                        / f"atlas={atlas}"
+                                        / f"estimator={e}"
+                                        / "part-0.parquet",
+                                        img=i,
+                                        confounds_file=confounds,  # type: ignore
+                                        labels=label,
+                                        high_pass=high_pass,
+                                        low_pass=low_pass,
+                                        estimator=estimator,
+                                    )
+                                for atlas, m in maps.items():
+                                    get_maps_connectivity.submit(
+                                        tmpdir
+                                        / "connectivity"
+                                        / f"sub={sub}"
+                                        / f"ses={ses}"
+                                        / f"task={task}"
+                                        / f"run={run}"
+                                        / f"space={space}"
+                                        / f"atlas={atlas}"
+                                        / f"estimator={e}"
+                                        / "part-0.parquet",
+                                        img=i,
+                                        confounds_file=confounds,  # type: ignore
+                                        maps=m,
+                                        high_pass=high_pass,
+                                        low_pass=low_pass,
+                                        estimator=estimator,
+                                    )
+                                for key, value in coordinates.items():
+                                    get_coordinates_connectivity.submit(
+                                        tmpdir
+                                        / "connectivity"
+                                        / f"sub={sub}"
+                                        / f"ses={ses}"
+                                        / f"task={task}"
+                                        / f"run={run}"
+                                        / f"space={space}"
+                                        / f"atlas={key}"
+                                        / f"estimator={e}"
+                                        / "part-0.parquet",
+                                        img=i,
+                                        coordinates=value,
+                                        confounds_file=confounds,  # type: ignore
+                                        high_pass=high_pass,
+                                        low_pass=low_pass,
+                                        estimator=estimator,
+                                    )
+
+            task_utils.merge_parquet.submit(
+                tmpdir / "connectivity",
+                outdir=out / "connectivity",
+                partition_cols=["sub", "ses", "task"],
+            )

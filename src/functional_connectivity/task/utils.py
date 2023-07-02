@@ -111,3 +111,13 @@ def _get(
             f"Expected that only 1 file would be retreived but saw {file=}; {filters=}"
         )
     return Path(str(file[0]))
+
+
+@prefect.task
+def merge_parquet(indir: Path, outdir: Path, partition_cols: list[str]) -> None:
+    pd.read_parquet(indir).to_parquet(
+        outdir,
+        index=False,
+        partition_cols=partition_cols,
+        write_statistics=True,
+    )
