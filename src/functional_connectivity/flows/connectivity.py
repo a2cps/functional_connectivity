@@ -35,7 +35,7 @@ def df_to_coordinates(dataframe: pd.DataFrame) -> frozenset[Coordinate]:
 
 
 def get_baliki_coordinates() -> frozenset[Coordinate]:
-    coordinates = datasets.get_coordinates_baliki()
+    coordinates = datasets.get_baliki_lut()
     return df_to_coordinates(coordinates)
 
 
@@ -222,6 +222,13 @@ def _get_labels() -> dict[str, datasets.Labels]:
                 )
             }
         )
+    out.update(
+        {
+            f"gordon_space-mni_resolution-{resolution}": datasets.get_atlas_gordon_2016(
+                resolution_mm=resolution, space="MNI"
+            )
+        }
+    )
     return out
 
 

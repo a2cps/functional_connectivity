@@ -21,7 +21,7 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
 dependencies = [
-  "ancpbids",
+  "ancpbids==0.2.1",
   "click",
   "dask",
   "indexed_gzip",
@@ -50,12 +50,14 @@ functional_connectivity = "functional_connectivity.cli.functional_connectivity:m
 source = "vcs"
 fallback-version = "23.0.1"
 
-[tool.hatch.envs.default]
+
+[tool.hatch.envs.test]
 dependencies = [
   "coverage[toml]>=6.5",
   "pytest",
 ]
-[tool.hatch.envs.default.scripts]
+
+[tool.hatch.envs.test.scripts]
 test = "pytest {args:tests}"
 test-cov = "coverage run -m pytest {args:tests}"
 cov-report = [

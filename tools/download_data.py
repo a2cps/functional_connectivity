@@ -28,3 +28,6 @@ rois.query("not roi in [127, 183, 184, 185, 243, 244, 245, 246]", inplace=True)
 rois.rename(columns={"roi": "region"}).to_csv(
     data_dir / "power2011.csv", index=False
 )
+
+# gordon parcels downloaded from (based on https://doi.org/10.1093/cercor/bhu239)
+# https://sites.wustl.edu/petersenschlaggarlab/files/2018/06/Parcels-19cwpgu.zip
