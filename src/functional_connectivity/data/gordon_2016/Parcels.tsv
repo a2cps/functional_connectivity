@@ -1,4 +1,4 @@
-ParcelID	Hem	Surface area (mm2)	Centroid (MNI)	Community	
+region	hemi	surface_area_mm2	centroid_MNI_x  centroid_MNI_y  centroid_MNI_z	community	
 1	L	1411.6436	-11.2 -52.4 36.5	Default	
 2	L	377.2543	-18.8 -48.7 65	SMhand	
 3	L	437.1466	-51.8 -7.8 38.5	SMmouth	

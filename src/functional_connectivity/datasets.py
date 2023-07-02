@@ -123,7 +123,7 @@ def get_gordon_2016_lut() -> pd.DataFrame:
             "Parcels.tsv"
         )
     ) as f:
-        lut = pd.read_csv(f).rename(columns={"ParcelID": "region"})
+        lut = pd.read_csv(f, delim_whitespace=True)
 
     return lut
 
