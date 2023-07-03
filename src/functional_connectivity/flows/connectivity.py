@@ -287,6 +287,7 @@ def connectivity_flow(
         layout = ancpbids.BIDSLayout(str(subdir))
         with tempfile.TemporaryDirectory() as _tmpdir:
             tmpdir = Path(_tmpdir)
+            connectivity_parts = []
             for sub in layout.get_subjects():
                 for ses in layout.get_sessions(sub=sub):
                     probseg = _get_probseg(
@@ -361,65 +362,71 @@ def connectivity_flow(
 
                             for e, estimator in estimators.items():
                                 for atlas, label in labels.items():
-                                    get_labels_connectivity.submit(
-                                        tmpdir
-                                        / "connectivity"
-                                        / f"sub={sub}"
-                                        / f"ses={ses}"
-                                        / f"task={task}"
-                                        / f"run={run}"
-                                        / f"space={space}"
-                                        / f"atlas={atlas}"
-                                        / f"estimator={e}"
-                                        / "part-0.parquet",
-                                        img=i,
-                                        confounds_file=confounds,  # type: ignore
-                                        labels=label,
-                                        high_pass=high_pass,
-                                        low_pass=low_pass,
-                                        estimator=estimator,
+                                    connectivity_parts.append(
+                                        get_labels_connectivity.submit(
+                                            tmpdir
+                                            / "connectivity"
+                                            / f"sub={sub}"
+                                            / f"ses={ses}"
+                                            / f"task={task}"
+                                            / f"run={run}"
+                                            / f"space={space}"
+                                            / f"atlas={atlas}"
+                                            / f"estimator={e}"
+                                            / "part-0.parquet",
+                                            img=i,
+                                            confounds_file=confounds,  # type: ignore
+                                            labels=label,
+                                            high_pass=high_pass,
+                                            low_pass=low_pass,
+                                            estimator=estimator,
+                                        )
                                     )
                                 for atlas, m in maps.items():
-                                    get_maps_connectivity.submit(
-                                        tmpdir
-                                        / "connectivity"
-                                        / f"sub={sub}"
-                                        / f"ses={ses}"
-                                        / f"task={task}"
-                                        / f"run={run}"
-                                        / f"space={space}"
-                                        / f"atlas={atlas}"
-                                        / f"estimator={e}"
-                                        / "part-0.parquet",
-                                        img=i,
-                                        confounds_file=confounds,  # type: ignore
-                                        maps=m,
-                                        high_pass=high_pass,
-                                        low_pass=low_pass,
-                                        estimator=estimator,
+                                    connectivity_parts.append(
+                                        get_maps_connectivity.submit(
+                                            tmpdir
+                                            / "connectivity"
+                                            / f"sub={sub}"
+                                            / f"ses={ses}"
+                                            / f"task={task}"
+                                            / f"run={run}"
+                                            / f"space={space}"
+                                            / f"atlas={atlas}"
+                                            / f"estimator={e}"
+                                            / "part-0.parquet",
+                                            img=i,
+                                            confounds_file=confounds,  # type: ignore
+                                            maps=m,
+                                            high_pass=high_pass,
+                                            low_pass=low_pass,
+                                            estimator=estimator,
+                                        )
                                     )
                                 for key, value in coordinates.items():
-                                    get_coordinates_connectivity.submit(
-                                        tmpdir
-                                        / "connectivity"
-                                        / f"sub={sub}"
-                                        / f"ses={ses}"
-                                        / f"task={task}"
-                                        / f"run={run}"
-                                        / f"space={space}"
-                                        / f"atlas={key}"
-                                        / f"estimator={e}"
-                                        / "part-0.parquet",
-                                        img=i,
-                                        coordinates=value,
-                                        confounds_file=confounds,  # type: ignore
-                                        high_pass=high_pass,
-                                        low_pass=low_pass,
-                                        estimator=estimator,
+                                    connectivity_parts.append(
+                                        get_coordinates_connectivity.submit(
+                                            tmpdir
+                                            / "connectivity"
+                                            / f"sub={sub}"
+                                            / f"ses={ses}"
+                                            / f"task={task}"
+                                            / f"run={run}"
+                                            / f"space={space}"
+                                            / f"atlas={key}"
+                                            / f"estimator={e}"
+                                            / "part-0.parquet",
+                                            img=i,
+                                            coordinates=value,
+                                            confounds_file=confounds,  # type: ignore
+                                            high_pass=high_pass,
+                                            low_pass=low_pass,
+                                            estimator=estimator,
+                                        )
                                     )
 
             task_utils.merge_parquet.submit(
-                tmpdir / "connectivity",
+                files=connectivity_parts,
                 outdir=out / "connectivity",
                 partition_cols=["sub", "ses", "task"],
             )

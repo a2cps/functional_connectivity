@@ -114,8 +114,10 @@ def _get(
 
 
 @prefect.task
-def merge_parquet(indir: Path, outdir: Path, partition_cols: list[str]) -> None:
-    pd.read_parquet(indir).to_parquet(
+def merge_parquet(
+    files: list[Path], outdir: Path, partition_cols: list[str]
+) -> None:
+    pd.read_parquet(files).to_parquet(
         outdir,
         index=False,
         partition_cols=partition_cols,
