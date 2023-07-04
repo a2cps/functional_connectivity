@@ -107,8 +107,9 @@ def _get(
         **filters,
     )
     if not len(file) == 1:
+        msg = f"Expected that only 1 file would be retreived but saw file={file!r}; filters={filters!r}"
         raise ValueError(
-            f"Expected that only 1 file would be retreived but saw {file=}; {filters=}"
+            msg
         )
     return Path(str(file[0]))
 

@@ -1,6 +1,6 @@
+import tempfile
 from pathlib import Path
 from typing import Iterable
-import tempfile
 
 import ancpbids
 import nibabel as nb
@@ -13,12 +13,8 @@ from pydantic.dataclasses import dataclass
 from sklearn import covariance
 
 from functional_connectivity import datasets, utils
-from functional_connectivity.task import compcor
+from functional_connectivity.task import compcor, img
 from functional_connectivity.task import utils as task_utils
-
-import pandas as pd
-
-# TODO: integrate into app
 
 
 @dataclass(frozen=True)
@@ -88,29 +84,17 @@ def _do_connectivity(
 @utils.cache_dataframe
 def get_coordinates_connectivity(
     img: Path,
-    confounds_file: Path,
     coordinates: frozenset[Coordinate],
     estimator: covariance.EmpiricalCovariance,
     radius: int = 5,  # " ... defined as 10-mm spheres centered ..."
-    high_pass: float | None = None,
-    low_pass: float | None = None,
 ) -> pd.DataFrame:
-    confounds = pd.read_parquet(confounds_file)
-
-    n_tr = confounds.shape[0]
-    nii: nb.Nifti1Image = nb.load(img).slicer[:, :, :, -n_tr:]
     masker = maskers.NiftiSpheresMasker(
         seeds=[x.seed for x in coordinates],
         radius=radius,
-        high_pass=high_pass,
-        low_pass=low_pass,
-        t_r=utils.get_tr(nii),
         standardize=False,
-        standardize_confounds="zscore_sample",
         detrend=False,
     )
-    time_series: np.ndarray = masker.fit_transform(nii, confounds=confounds)
-    del nii
+    time_series: np.ndarray = masker.fit_transform(img)
 
     return _do_connectivity(
         time_series=time_series,
@@ -123,28 +107,16 @@ def get_coordinates_connectivity(
 @utils.cache_dataframe
 def get_maps_connectivity(
     img: Path,
-    confounds_file: Path,
     maps: datasets.Labels,
     estimator: covariance.EmpiricalCovariance,
-    high_pass: float | None = None,
-    low_pass: float | None = None,
 ) -> pd.DataFrame:
-    confounds = pd.read_parquet(confounds_file)
-
-    n_tr = confounds.shape[0]
-    nii: nb.Nifti1Image = nb.load(img).slicer[:, :, :, -n_tr:]
     masker = maskers.NiftiMapsMasker(
         maps_img=maps.labels_img,
-        high_pass=high_pass,
-        low_pass=low_pass,
-        t_r=utils.get_tr(nii),
         standardize=False,
-        standardize_confounds="zscore_sample",
         detrend=False,
         resampling_target="data",
     )
-    time_series: np.ndarray = masker.fit_transform(nii, confounds=confounds)
-    del nii
+    time_series: np.ndarray = masker.fit_transform(img)
 
     return _do_connectivity(
         time_series=time_series,
@@ -157,29 +129,17 @@ def get_maps_connectivity(
 @utils.cache_dataframe
 def get_labels_connectivity(
     img: Path,
-    confounds_file: Path,
     labels: datasets.Labels,
     estimator: covariance.EmpiricalCovariance,
-    high_pass: float | None = None,
-    low_pass: float | None = None,
 ) -> pd.DataFrame:
-    confounds = pd.read_parquet(confounds_file)
-
-    n_tr = confounds.shape[0]
-    nii: nb.Nifti1Image = nb.load(img).slicer[:, :, :, -n_tr:]
     masker = maskers.NiftiLabelsMasker(
         labels_img=labels.labels_img,
-        high_pass=high_pass,
-        low_pass=low_pass,
-        t_r=utils.get_tr(nii),
         standardize=False,
-        standardize_confounds="zscore_sample",
         detrend=False,
         resampling_target="data",
     )
     # need to fit here in case of loss of labels
-    time_series: np.ndarray = masker.fit_transform(nii, confounds=confounds)
-    del nii
+    time_series: np.ndarray = masker.fit_transform(img)
     labels_lookup = _update_labels(masker._resampled_labels_img_, labels.labels)
 
     return _do_connectivity(
@@ -344,7 +304,7 @@ def connectivity_flow(
                                 / f"task={task}"
                                 / f"run={run}"
                                 / "part-0.parquet",
-                                acompcor_file=acompcor,  # type: ignore
+                                acompcor_file=acompcor,
                                 confounds=task_utils._get(
                                     layout=layout,
                                     filters={
@@ -358,6 +318,17 @@ def connectivity_flow(
                                 ),
                                 label="WM+CSF",
                                 n_non_steady_state_tr=n_non_steady_state_tr,
+                            )
+
+                            cleaned = img.clean_img.submit(
+                                out
+                                / "connectivity-cleaned"
+                                / f"sub-{sub}_ses-{ses}_task-{task}_run-{run}_desc-preproc_bold.nii.gz",
+                                img=i,
+                                confounds_file=confounds,
+                                low_pass=low_pass,
+                                high_pass=high_pass,
+                                detrend=False,
                             )
 
                             for e, estimator in estimators.items():
@@ -374,11 +345,8 @@ def connectivity_flow(
                                             / f"atlas={atlas}"
                                             / f"estimator={e}"
                                             / "part-0.parquet",
-                                            img=i,
-                                            confounds_file=confounds,  # type: ignore
+                                            img=cleaned,
                                             labels=label,
-                                            high_pass=high_pass,
-                                            low_pass=low_pass,
                                             estimator=estimator,
                                         )
                                     )
@@ -395,11 +363,8 @@ def connectivity_flow(
                                             / f"atlas={atlas}"
                                             / f"estimator={e}"
                                             / "part-0.parquet",
-                                            img=i,
-                                            confounds_file=confounds,  # type: ignore
+                                            img=cleaned,
                                             maps=m,
-                                            high_pass=high_pass,
-                                            low_pass=low_pass,
                                             estimator=estimator,
                                         )
                                     )
@@ -416,11 +381,8 @@ def connectivity_flow(
                                             / f"atlas={key}"
                                             / f"estimator={e}"
                                             / "part-0.parquet",
-                                            img=i,
+                                            img=cleaned,
                                             coordinates=value,
-                                            confounds_file=confounds,  # type: ignore
-                                            high_pass=high_pass,
-                                            low_pass=low_pass,
                                             estimator=estimator,
                                         )
                                     )
