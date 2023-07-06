@@ -1,9 +1,22 @@
 from importlib import resources
-from typing import Literal
+from typing import Literal, TypeAlias
 
 import pandas as pd
 import pydantic
 from pydantic.dataclasses import dataclass
+
+YeoNetworks: TypeAlias = Literal[7, 17]
+SchaeferNROI: TypeAlias = Literal[400]
+SchaeferResolution: TypeAlias = Literal[2]
+
+FanResolution: TypeAlias = Literal[2, 3]
+
+DIFUMODimension: TypeAlias = Literal[64, 128, 256, 512, 1024]
+DIFUMOResolution: TypeAlias = Literal[2, 3]
+
+GordonResolution: TypeAlias = Literal[1, 2, 3]
+
+GordonSpace: TypeAlias = Literal["MNI", "711-2b"]
 
 
 @dataclass(frozen=True, config={"arbitrary_types_allowed": True})
@@ -20,7 +33,7 @@ def get_fan_atlas_lut() -> pd.DataFrame:
     return labels
 
 
-def get_fan_atlas(resolution: Literal[2, 3] = 2) -> Labels:
+def get_fan_atlas(resolution: FanResolution = 2) -> Labels:
     """Return file from ToPS model (https://doi.org/10.1038/s41591-020-1142-7)"""
     with resources.as_file(
         resources.files("functional_connectivity.data").joinpath(
@@ -48,7 +61,7 @@ def get_coordinates_power2011() -> pd.DataFrame:
     return coordinates
 
 
-def get_difumo_lut(dimension: Literal[64, 128, 256, 512, 1024]) -> pd.DataFrame:
+def get_difumo_lut(dimension: DIFUMODimension) -> pd.DataFrame:
     with resources.as_file(
         resources.files(
             f"functional_connectivity.data.difumo_atlases.{dimension}"
@@ -60,7 +73,7 @@ def get_difumo_lut(dimension: Literal[64, 128, 256, 512, 1024]) -> pd.DataFrame:
 
 
 def get_difumo(
-    dimension: Literal[64, 128, 256, 512, 1024], resolution_mm: Literal[2, 3]
+    dimension: DIFUMODimension, resolution_mm: DIFUMOResolution
 ) -> Labels:
     with resources.as_file(
         resources.files(
@@ -75,8 +88,7 @@ def get_difumo(
 
 
 def get_atlas_schaefer_2018_lut(
-    n_rois: Literal[400],
-    yeo_networks: Literal[7, 17],
+    n_rois: SchaeferNROI, yeo_networks: YeoNetworks
 ) -> pd.DataFrame:
     with resources.as_file(
         resources.files("functional_connectivity.data.schaefer_2018").joinpath(
@@ -92,9 +104,9 @@ def get_atlas_schaefer_2018_lut(
 
 
 def get_atlas_schaefer_2018(
-    n_rois: Literal[400],
-    resolution_mm: Literal[2],
-    yeo_networks: Literal[7, 17],
+    n_rois: SchaeferNROI,
+    resolution_mm: SchaeferResolution,
+    yeo_networks: YeoNetworks,
 ) -> Labels:
     with resources.as_file(
         resources.files("functional_connectivity.data.schaefer_2018").joinpath(
@@ -129,7 +141,7 @@ def get_gordon_2016_lut() -> pd.DataFrame:
 
 
 def get_atlas_gordon_2016(
-    resolution_mm: Literal[1, 2, 3], space: Literal["MNI", "711-2b"] = "MNI"
+    resolution_mm: GordonResolution, space: GordonSpace = "MNI"
 ) -> Labels:
     with resources.as_file(
         resources.files("functional_connectivity.data.gordon_2016").joinpath(

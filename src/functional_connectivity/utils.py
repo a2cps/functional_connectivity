@@ -1,15 +1,7 @@
 import logging
 import tempfile
-from importlib import resources
 from pathlib import Path
-from typing import (
-    Callable,
-    Concatenate,
-    Iterable,
-    Literal,
-    ParamSpec,
-    TypeVar,
-)
+from typing import Callable, Concatenate, Iterable, ParamSpec, TypeVar
 
 import nibabel as nb
 import numpy as np
@@ -20,43 +12,21 @@ def img_stem(img: Path) -> str:
     return img.name.removesuffix(".gz").removesuffix(".nii")
 
 
-
 def exclude_to_index(n_non_steady_state_tr: int, n_tr: int) -> np.ndarray:
     return np.array(list(range(n_non_steady_state_tr, n_tr)))
 
 
-def get_tr(nii: nb.Nifti1Image) -> float:
+def get_tr(nii: nb.nifti1.Nifti1Image) -> float:
     return nii.header.get("pixdim")[4]  # type: ignore
-
-
-def get_nps_mask(
-    weights: Literal["negative", "positive", "rois", "group", "binary"] | None = None
-) -> Path:
-    match weights:
-        case "negative":
-            fname = "weights_NSF_negative_smoothed_larger_than_10vox.nii.gz"
-        case "positive":
-            fname = "weights_NSF_positive_smoothed_larger_than_10vox.nii.gz"
-        case "rois":
-            fname = "weights_NSF_smoothed_larger_than_10vox.nii.gz"
-        case "group":
-            fname = "weights_NSF_grouppred_cvpcr.nii.gz"
-        case "binary":
-            fname = "weights_NSF_grouppred_cvpcr_binary.nii.gz"
-        case _:
-            msg = f"{weights=} not recognized"
-            raise ValueError(msg)
-
-    with resources.path("postfmriprep.data", fname) as f:
-        path = f
-    return path
 
 
 P = ParamSpec("P")
 R = TypeVar("R")
 
 
-def cache_nii(f: Callable[P, nb.Nifti1Image]) -> Callable[Concatenate[Path, P], Path]:
+def cache_nii(
+    f: Callable[P, nb.nifti1.Nifti1Image]
+) -> Callable[Concatenate[Path, P], Path]:
     def wrapper(_filename: Path, *args: P.args, **kwargs: P.kwargs) -> Path:
         if _filename.exists():
             logging.info(f"found cached {_filename}")
@@ -83,9 +53,11 @@ def cache_nii(f: Callable[P, nb.Nifti1Image]) -> Callable[Concatenate[Path, P], 
 
 
 def cache_dataframe(
-    f: Callable[P, pd.DataFrame ]
+    f: Callable[P, pd.DataFrame]
 ) -> Callable[Concatenate[Path | None, P], Path]:
-    def wrapper(_filename: Path | None, *args: P.args, **kwargs: P.kwargs) -> Path:
+    def wrapper(
+        _filename: Path | None, *args: P.args, **kwargs: P.kwargs
+    ) -> Path:
         if _filename and _filename.exists():
             logging.warning(f"found cached {_filename}")
             outfile = _filename
@@ -118,6 +90,7 @@ def cache_dataframe(
 
     return wrapper
 
+
 def _mat_to_df(cormat: np.ndarray, labels: Iterable[int]) -> pd.DataFrame:
     source = []
     target = []
@@ -139,18 +112,18 @@ def _mat_to_df(cormat: np.ndarray, labels: Iterable[int]) -> pd.DataFrame:
 def get_poly_design(n: int, degree: int) -> np.ndarray:
     x = np.arange(n)
     x = x - np.mean(x, axis=0)
-    X = np.vander(x, degree, increasing=True)# noqa: N806
+    X = np.vander(x, degree, increasing=True)  # noqa: N806
     q, r = np.linalg.qr(X)
 
     z = np.diag(np.diag(r))
     raw = np.dot(q, z)
 
     norm2 = np.sum(raw**2, axis=0)
-    Z = raw / np.sqrt(norm2)
+    Z = raw / np.sqrt(norm2)  # noqa: N806
     return Z
 
 
-def detrend(img: nb.Nifti1Image, mask: Path) -> nb.Nifti1Image:
+def detrend(img: nb.nifti1.Nifti1Image, mask: Path) -> nb.nifti1.Nifti1Image:
     from nilearn import masking
 
     Y = masking.apply_mask(img, mask_img=mask)  # noqa: N806
@@ -161,6 +134,6 @@ def detrend(img: nb.Nifti1Image, mask: Path) -> nb.Nifti1Image:
 
 
 def _detrend(Y: np.ndarray) -> np.ndarray:  # noqa: N803
-    X = get_poly_design(Y.shape[0], degree=3) # noqa: N806
+    X = get_poly_design(Y.shape[0], degree=3)  # noqa: N806
     beta = np.linalg.pinv(X).dot(Y)
     return Y - np.dot(X[:, 1:], beta[1:, :])

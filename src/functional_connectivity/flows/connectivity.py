@@ -1,4 +1,5 @@
 import tempfile
+import typing
 from pathlib import Path
 from typing import Iterable
 
@@ -15,6 +16,27 @@ from sklearn import covariance
 from functional_connectivity import datasets, utils
 from functional_connectivity.task import compcor, img
 from functional_connectivity.task import utils as task_utils
+
+YEO_NETWORKS: tuple[datasets.YeoNetworks, ...] = typing.get_args(
+    datasets.YeoNetworks
+)
+SCHAEFER_N_ROIS: tuple[datasets.SchaeferNROI, ...] = typing.get_args(
+    datasets.SchaeferNROI
+)
+SCHAEFERR_RESOLUTIONS: tuple[
+    datasets.SchaeferResolution, ...
+] = typing.get_args(datasets.SchaeferResolution)
+FAN_RESOLUTIONS: tuple[datasets.FanResolution, ...] = (2,)
+DIFUMO_DIMENSIONS: tuple[datasets.DIFUMODimension, ...] = typing.get_args(
+    datasets.DIFUMODimension
+)
+DIFUMO_RESOLUTIONS: tuple[datasets.DIFUMOResolution, ...] = (2,)
+GORDON_RESOLUTIONS: tuple[datasets.GordonResolution, ...] = typing.get_args(
+    datasets.GordonResolution
+)
+GORDON_SPACES: tuple[datasets.GordonSpace, ...] = typing.get_args(
+    datasets.GordonSpace
+)
 
 
 @dataclass(frozen=True)
@@ -44,7 +66,7 @@ def get_power_coordinates() -> frozenset[Coordinate]:
 
 
 def _update_labels(
-    resampled_labels_img: nb.Nifti1Image, labels: pd.DataFrame
+    resampled_labels_img: nb.nifti1.Nifti1Image, labels: pd.DataFrame
 ) -> pd.DataFrame:
     resampled_labels = np.unique(
         np.asarray(resampled_labels_img.dataobj, dtype=int)
@@ -61,12 +83,13 @@ def _update_labels(
 def _do_connectivity(
     time_series: np.ndarray,
     labels: Iterable[int],
-    estimator: covariance.EmpiricalCovariance,
+    estimator: type[covariance.EmpiricalCovariance],
 ) -> pd.DataFrame:
     # need to do standardization manually due to ddof issue
     # https://github.com/nilearn/nilearn/issues/3406
     connectivity_measure = ConnectivityMeasure(
-        cov_estimator=estimator(store_precision=False), kind="covariance"
+        cov_estimator=estimator(store_precision=False),  # type: ignore
+        kind="covariance",
     )
     covariance_matrix: np.ndarray = connectivity_measure.fit_transform(
         [
@@ -85,14 +108,16 @@ def _do_connectivity(
 def get_coordinates_connectivity(
     img: Path,
     coordinates: frozenset[Coordinate],
-    estimator: covariance.EmpiricalCovariance,
+    estimator: type[covariance.EmpiricalCovariance],
     radius: int = 5,  # " ... defined as 10-mm spheres centered ..."
+    mask_img: Path | None = None,
 ) -> pd.DataFrame:
     masker = maskers.NiftiSpheresMasker(
         seeds=[x.seed for x in coordinates],
         radius=radius,
         standardize=False,
         detrend=False,
+        mask_img=mask_img,
     )
     time_series: np.ndarray = masker.fit_transform(img)
 
@@ -108,13 +133,15 @@ def get_coordinates_connectivity(
 def get_maps_connectivity(
     img: Path,
     maps: datasets.Labels,
-    estimator: covariance.EmpiricalCovariance,
+    estimator: type[covariance.EmpiricalCovariance],
+    mask_img: Path | None = None,
 ) -> pd.DataFrame:
     masker = maskers.NiftiMapsMasker(
         maps_img=maps.labels_img,
         standardize=False,
         detrend=False,
         resampling_target="data",
+        mask_img=mask_img,
     )
     time_series: np.ndarray = masker.fit_transform(img)
 
@@ -130,17 +157,19 @@ def get_maps_connectivity(
 def get_labels_connectivity(
     img: Path,
     labels: datasets.Labels,
-    estimator: covariance.EmpiricalCovariance,
+    estimator: type[covariance.EmpiricalCovariance],
+    mask_img: Path | None = None,
 ) -> pd.DataFrame:
     masker = maskers.NiftiLabelsMasker(
         labels_img=labels.labels_img,
         standardize=False,
         detrend=False,
         resampling_target="data",
+        mask_img=mask_img,
     )
     # need to fit here in case of loss of labels
     time_series: np.ndarray = masker.fit_transform(img)
-    labels_lookup = _update_labels(masker._resampled_labels_img_, labels.labels)
+    labels_lookup = _update_labels(masker._resampled_labels_img_, labels.labels)  # type: ignore
 
     return _do_connectivity(
         time_series=time_series,
@@ -168,8 +197,8 @@ def _get_probseg(layout, sub, ses, space) -> list[Path]:
 
 def _get_labels() -> dict[str, datasets.Labels]:
     out = {}
-    for n in [400]:
-        for networks in [7, 17]:
+    for n in SCHAEFER_N_ROIS:
+        for networks in YEO_NETWORKS:
             out.update(
                 {
                     f"schaefer_nrois-{n}_resolution-2_networks-{networks}": datasets.get_atlas_schaefer_2018(
@@ -177,7 +206,7 @@ def _get_labels() -> dict[str, datasets.Labels]:
                     )
                 }
             )
-    for resolution in [2]:
+    for resolution in FAN_RESOLUTIONS:
         out.update(
             {
                 f"fan_resolution-{resolution}": datasets.get_fan_atlas(
@@ -187,8 +216,8 @@ def _get_labels() -> dict[str, datasets.Labels]:
         )
     out.update(
         {
-            f"gordon_space-mni_resolution-{resolution}": datasets.get_atlas_gordon_2016(
-                resolution_mm=resolution, space="MNI"
+            "gordon_space-mni_resolution-2": datasets.get_atlas_gordon_2016(
+                resolution_mm=2, space="MNI"
             )
         }
     )
@@ -197,23 +226,23 @@ def _get_labels() -> dict[str, datasets.Labels]:
 
 def _get_maps() -> dict[str, datasets.Labels]:
     out = {}
-    for dimension in [64, 128, 256, 512, 1024]:
-        for mm in [2]:
+    for dimension in DIFUMO_DIMENSIONS:
+        for mm in DIFUMO_RESOLUTIONS:
             out.update(
                 {
                     f"difumo_dimension-{dimension}_resolution-{mm}mm": datasets.get_difumo(
                         dimension=dimension, resolution_mm=mm
-                    )
+                    )  # type: ignore
                 }
             )
     return out
 
 
-def _get_coordinates() -> dict[str, Coordinate]:
+def _get_coordinates() -> dict[str, frozenset[Coordinate]]:
     return {"dmn": get_baliki_coordinates(), "power": get_power_coordinates()}
 
 
-def _get_estimators() -> dict[str, covariance.EmpiricalCovariance]:
+def _get_estimators() -> dict[str, type[covariance.EmpiricalCovariance]]:
     return {
         "empirical": covariance.EmpiricalCovariance,
         "oracle_approximating_shrinkage": covariance.OAS,
@@ -268,6 +297,17 @@ def connectivity_flow(
                                     "extension": ".nii.gz",
                                 },
                             )
+                            mask = task_utils._get(
+                                layout=layout,
+                                filters={
+                                    "sub": str(sub),
+                                    "ses": str(ses),
+                                    "task": str(task),
+                                    "run": str(run),
+                                    "desc": "brain",
+                                    "extension": ".nii.gz",
+                                },
+                            )
                             acompcor = compcor.do_compcor.submit(
                                 out
                                 / "acompcor"
@@ -304,7 +344,7 @@ def connectivity_flow(
                                 / f"task={task}"
                                 / f"run={run}"
                                 / "part-0.parquet",
-                                acompcor_file=acompcor,
+                                acompcor_file=acompcor,  # type: ignore
                                 confounds=task_utils._get(
                                     layout=layout,
                                     filters={
@@ -325,7 +365,8 @@ def connectivity_flow(
                                 / "connectivity-cleaned"
                                 / f"sub-{sub}_ses-{ses}_task-{task}_run-{run}_desc-preproc_bold.nii.gz",
                                 img=i,
-                                confounds_file=confounds,
+                                confounds_file=confounds,  # type: ignore
+                                mask_img=mask,
                                 low_pass=low_pass,
                                 high_pass=high_pass,
                                 detrend=False,
@@ -345,9 +386,10 @@ def connectivity_flow(
                                             / f"atlas={atlas}"
                                             / f"estimator={e}"
                                             / "part-0.parquet",
-                                            img=cleaned,
+                                            img=cleaned,  # type: ignore
                                             labels=label,
                                             estimator=estimator,
+                                            mask_img=mask,
                                         )
                                     )
                                 for atlas, m in maps.items():
@@ -363,9 +405,10 @@ def connectivity_flow(
                                             / f"atlas={atlas}"
                                             / f"estimator={e}"
                                             / "part-0.parquet",
-                                            img=cleaned,
+                                            img=cleaned,  # type: ignore
                                             maps=m,
                                             estimator=estimator,
+                                            mask_img=mask,
                                         )
                                     )
                                 for key, value in coordinates.items():
@@ -381,9 +424,10 @@ def connectivity_flow(
                                             / f"atlas={key}"
                                             / f"estimator={e}"
                                             / "part-0.parquet",
-                                            img=cleaned,
+                                            img=cleaned,  # type: ignore
                                             coordinates=value,
                                             estimator=estimator,
+                                            mask_img=mask,
                                         )
                                     )
 

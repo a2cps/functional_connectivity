@@ -41,7 +41,7 @@ def update_confounds(
     confounds: Path,
     n_non_steady_state_tr: int = 0,
     acompcor_file: Path | None = None,
-    usecols: list[str] = [
+    usecols: tuple[str, ...] = (
         "trans_x",
         "trans_x_derivative1",
         "trans_x_power2",
@@ -66,7 +66,7 @@ def update_confounds(
         "rot_z_derivative1",
         "rot_z_power2",
         "rot_z_derivative1_power2",
-    ],
+    ),
     label: typing.Literal["CSF", "WM", "WM+CSF"] | None = "WM+CSF",
     extra: Path | None = None,
     standardize: bool = True,
@@ -108,9 +108,7 @@ def _get(
     )
     if not len(file) == 1:
         msg = f"Expected that only 1 file would be retreived but saw file={file!r}; filters={filters!r}"
-        raise ValueError(
-            msg
-        )
+        raise ValueError(msg)
     return Path(str(file[0]))
 
 
@@ -118,7 +116,7 @@ def _get(
 def merge_parquet(
     files: list[Path], outdir: Path, partition_cols: list[str]
 ) -> None:
-    pd.read_parquet(files).to_parquet(
+    pd.read_parquet(files).to_parquet(  # type: ignore
         outdir,
         index=False,
         partition_cols=partition_cols,
