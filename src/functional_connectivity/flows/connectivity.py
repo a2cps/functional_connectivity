@@ -31,12 +31,8 @@ DIFUMO_DIMENSIONS: tuple[datasets.DIFUMODimension, ...] = typing.get_args(
     datasets.DIFUMODimension
 )
 DIFUMO_RESOLUTIONS: tuple[datasets.DIFUMOResolution, ...] = (2,)
-GORDON_RESOLUTIONS: tuple[datasets.GordonResolution, ...] = typing.get_args(
-    datasets.GordonResolution
-)
-GORDON_SPACES: tuple[datasets.GordonSpace, ...] = typing.get_args(
-    datasets.GordonSpace
-)
+GORDON_RESOLUTIONS: tuple[datasets.GordonResolution, ...] = (2,)
+GORDON_SPACES: tuple[datasets.GordonSpace, ...] = ("MNI",)
 
 
 @dataclass(frozen=True)
