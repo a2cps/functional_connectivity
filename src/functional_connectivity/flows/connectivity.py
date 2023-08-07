@@ -241,7 +241,6 @@ def _get_coordinates() -> dict[str, frozenset[Coordinate]]:
 def _get_estimators() -> dict[str, type[covariance.EmpiricalCovariance]]:
     return {
         "empirical": covariance.EmpiricalCovariance,
-        "oracle_approximating_shrinkage": covariance.OAS,
         "leodit_wolf": covariance.LedoitWolf,
         "minimum_covariance_determinant": covariance.MinCovDet,
     }
