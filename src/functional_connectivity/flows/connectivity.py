@@ -27,9 +27,7 @@ SCHAEFERR_RESOLUTIONS: tuple[
     datasets.SchaeferResolution, ...
 ] = typing.get_args(datasets.SchaeferResolution)
 FAN_RESOLUTIONS: tuple[datasets.FanResolution, ...] = (2,)
-DIFUMO_DIMENSIONS: tuple[datasets.DIFUMODimension, ...] = typing.get_args(
-    datasets.DIFUMODimension
-)
+DIFUMO_DIMENSIONS: tuple[datasets.DIFUMODimension, ...] = (64, 1024)
 DIFUMO_RESOLUTIONS: tuple[datasets.DIFUMOResolution, ...] = (2,)
 GORDON_RESOLUTIONS: tuple[datasets.GordonResolution, ...] = (2,)
 GORDON_SPACES: tuple[datasets.GordonSpace, ...] = ("MNI",)
