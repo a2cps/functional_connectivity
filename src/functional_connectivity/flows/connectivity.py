@@ -1,5 +1,6 @@
 import tempfile
 import typing
+from collections import namedtuple
 from collections.abc import Sequence
 from pathlib import Path
 
@@ -10,7 +11,6 @@ import pandas as pd
 import prefect
 from nilearn import maskers, signal
 from nilearn.connectome import ConnectivityMeasure, connectivity_matrices
-from pydantic.dataclasses import dataclass
 from sklearn import covariance
 
 from functional_connectivity import datasets, utils
@@ -33,15 +33,13 @@ GORDON_RESOLUTIONS: tuple[datasets.GordonResolution, ...] = (2,)
 GORDON_SPACES: tuple[datasets.GordonSpace, ...] = ("MNI",)
 
 
-@dataclass(frozen=True)
-class Coordinate:
-    seed: tuple[int, int, int]
+Coordinate = namedtuple("Coordinate", ["x", "y", "z"])
 
 
 def df_to_coordinates(dataframe: pd.DataFrame) -> dict[int, Coordinate]:
     coordinates: dict[int, Coordinate] = {}
     for row in dataframe.itertuples():
-        coordinates.update({row.region: Coordinate(seed=(row.x, row.y, row.z))})
+        coordinates.update({row.region: Coordinate(x=row.x, y=row.y, z=row.z)})
 
     return coordinates
 
