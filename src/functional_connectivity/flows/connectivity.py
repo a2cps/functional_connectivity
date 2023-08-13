@@ -1,6 +1,5 @@
 import tempfile
 import typing
-from collections import namedtuple
 from collections.abc import Sequence
 from pathlib import Path
 
@@ -33,7 +32,10 @@ GORDON_RESOLUTIONS: tuple[datasets.GordonResolution, ...] = (2,)
 GORDON_SPACES: tuple[datasets.GordonSpace, ...] = ("MNI",)
 
 
-Coordinate = namedtuple("Coordinate", ["x", "y", "z"])
+class Coordinate(typing.NamedTuple):
+    x: int
+    y: int
+    z: int
 
 
 def df_to_coordinates(dataframe: pd.DataFrame) -> dict[int, Coordinate]:
