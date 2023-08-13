@@ -1,7 +1,7 @@
 import tempfile
 import typing
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Iterable
 
 import ancpbids
 import nibabel as nb
@@ -35,26 +35,23 @@ GORDON_SPACES: tuple[datasets.GordonSpace, ...] = ("MNI",)
 
 @dataclass(frozen=True)
 class Coordinate:
-    region: int
     seed: tuple[int, int, int]
 
 
-def df_to_coordinates(dataframe: pd.DataFrame) -> frozenset[Coordinate]:
-    coordinates = set()
+def df_to_coordinates(dataframe: pd.DataFrame) -> dict[int, Coordinate]:
+    coordinates: dict[int, Coordinate] = {}
     for row in dataframe.itertuples():
-        coordinates.add(
-            Coordinate(region=row.region, seed=(row.x, row.y, row.z))
-        )
+        coordinates.update({row.region: Coordinate(seed=(row.x, row.y, row.z))})
 
-    return frozenset(coordinates)
+    return coordinates
 
 
-def get_baliki_coordinates() -> frozenset[Coordinate]:
+def get_baliki_coordinates() -> dict[int, Coordinate]:
     coordinates = datasets.get_baliki_lut()
     return df_to_coordinates(coordinates)
 
 
-def get_power_coordinates() -> frozenset[Coordinate]:
+def get_power_coordinates() -> dict[int, Coordinate]:
     coordinates = datasets.get_coordinates_power2011()
     return df_to_coordinates(coordinates)
 
@@ -76,7 +73,7 @@ def _update_labels(
 
 def _do_connectivity(
     time_series: np.ndarray,
-    labels: Iterable[int],
+    labels: Sequence[int],
     estimator: type[covariance.EmpiricalCovariance],
 ) -> pd.DataFrame:
     # need to do standardization manually due to ddof issue
@@ -101,23 +98,24 @@ def _do_connectivity(
 @utils.cache_dataframe
 def get_coordinates_connectivity(
     img: Path,
-    coordinates: frozenset[Coordinate],
+    coordinates: dict[int, Coordinate],
     estimator: type[covariance.EmpiricalCovariance],
     radius: int = 5,  # " ... defined as 10-mm spheres centered ..."
-    mask_img: Path | None = None,
 ) -> pd.DataFrame:
+    # we do not include a mask because many of the images
+    # had only a partial FOV, and NiftiSpheresMasker raises
+    # an error when including a seed that is outside the mask
     masker = maskers.NiftiSpheresMasker(
-        seeds=[x.seed for x in coordinates],
+        seeds=coordinates.values(),
         radius=radius,
         standardize=False,
         detrend=False,
-        mask_img=mask_img,
     )
     time_series: np.ndarray = masker.fit_transform(img)
 
     return _do_connectivity(
         time_series=time_series,
-        labels=[x.region for x in coordinates],
+        labels=tuple(coordinates.keys()),
         estimator=estimator,
     )
 
@@ -232,7 +230,7 @@ def _get_maps() -> dict[str, datasets.Labels]:
     return out
 
 
-def _get_coordinates() -> dict[str, frozenset[Coordinate]]:
+def _get_coordinates() -> dict[str, dict[int, Coordinate]]:
     return {"dmn": get_baliki_coordinates(), "power": get_power_coordinates()}
 
 
@@ -420,7 +418,6 @@ def connectivity_flow(
                                             img=cleaned,  # type: ignore
                                             coordinates=value,
                                             estimator=estimator,
-                                            mask_img=mask,
                                         )
                                     )
 

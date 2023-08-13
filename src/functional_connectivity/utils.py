@@ -1,7 +1,7 @@
 import logging
 import tempfile
 from pathlib import Path
-from typing import Callable, Concatenate, Iterable, ParamSpec, TypeVar
+from typing import Callable, Concatenate, ParamSpec, Sequence, TypeVar
 
 import nibabel as nb
 import numpy as np
@@ -91,7 +91,7 @@ def cache_dataframe(
     return wrapper
 
 
-def _mat_to_df(cormat: np.ndarray, labels: Iterable[int]) -> pd.DataFrame:
+def _mat_to_df(cormat: np.ndarray, labels: Sequence[int]) -> pd.DataFrame:
     source = []
     target = []
     connectivity = []
