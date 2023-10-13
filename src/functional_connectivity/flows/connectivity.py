@@ -1,3 +1,4 @@
+import shutil
 import tempfile
 import typing
 from collections.abc import Sequence
@@ -30,6 +31,15 @@ DIFUMO_DIMENSIONS: tuple[datasets.DIFUMODimension, ...] = (64, 1024)
 DIFUMO_RESOLUTIONS: tuple[datasets.DIFUMOResolution, ...] = (2,)
 GORDON_RESOLUTIONS: tuple[datasets.GordonResolution, ...] = (2,)
 GORDON_SPACES: tuple[datasets.GordonSpace, ...] = ("MNI",)
+
+OUTPUT_DIR: typing.TypeAlias = typing.Literal[
+    "acompcor",
+    "connectivity",
+    "connectivity-cleaned",
+    "connectivity-confounds",
+]
+
+OUTPUT_DIRS: tuple[OUTPUT_DIR, ...] = typing.get_args(OUTPUT_DIR)
 
 
 class Coordinate(typing.NamedTuple):
@@ -170,6 +180,7 @@ def get_labels_connectivity(
     )
 
 
+@prefect.task
 def _get_probseg(layout, sub, ses, space) -> list[Path]:
     return [
         task_utils._get.fn(
@@ -242,6 +253,16 @@ def _get_estimators() -> dict[str, type[covariance.EmpiricalCovariance]]:
     }
 
 
+@prefect.task
+def copy_to_dst(src: Path, dst: Path) -> None:
+    if not all((src / output_dir).exists() for output_dir in OUTPUT_DIRS):
+        msg = f"Not all output directories seem to have been created. Found {(x for x in src.glob('*'))}"
+        raise AssertionError(msg)
+    if not dst.exists():
+        dst.mkdir(parents=True)
+    shutil.copytree(src, dst)
+
+
 @prefect.flow
 def connectivity_flow(
     subdirs: list[Path],
@@ -263,53 +284,24 @@ def connectivity_flow(
     coordinates = _get_coordinates()
     estimators = _get_estimators()
 
-    for subdir, out in zip(subdirs, output_dirs):
+    for subdir, out in zip(subdirs, output_dirs, strict=True):
         layout = ancpbids.BIDSLayout(str(subdir))
-        with tempfile.TemporaryDirectory() as _tmpdir:
-            tmpdir = Path(_tmpdir)
-            connectivity_parts = []
-            for sub in layout.get_subjects():
-                for ses in layout.get_sessions(sub=sub):
-                    probseg = _get_probseg(
-                        layout=layout, sub=sub, ses=ses, space=space
-                    )
-                    for task in layout.get_tasks(sub=sub, ses=ses):
-                        for run in layout.get_runs(sub=sub, ses=ses, task=task):
-                            i = task_utils._get(
-                                layout=layout,
-                                filters={
-                                    "sub": str(sub),
-                                    "ses": str(ses),
-                                    "task": str(task),
-                                    "run": str(run),
-                                    "space": str(space),
-                                    "desc": "preproc",
-                                    "suffix": "bold",
-                                    "extension": ".nii.gz",
-                                },
-                            )
-                            mask = task_utils._get(
-                                layout=layout,
-                                filters={
-                                    "sub": str(sub),
-                                    "ses": str(ses),
-                                    "task": str(task),
-                                    "run": str(run),
-                                    "desc": "brain",
-                                    "extension": ".nii.gz",
-                                },
-                            )
-                            acompcor = compcor.do_compcor.submit(
-                                out
-                                / "acompcor"
-                                / f"sub={sub}"
-                                / f"ses={ses}"
-                                / f"task={task}"
-                                / f"run={run}"
-                                / f"space={space}"
-                                / "part-0.parquet",
-                                img=i,
-                                boldref=task_utils._get(
+        with tempfile.TemporaryDirectory() as _tmp_out:
+            tmpdir_out = Path(_tmp_out)
+            with tempfile.TemporaryDirectory() as _tmp_connectivity:
+                tmpdir_connectivity = Path(_tmp_connectivity)
+                connectivity_parts = []
+                to_wait_for = []
+                for sub in layout.get_subjects():
+                    for ses in layout.get_sessions(sub=sub):
+                        probseg = _get_probseg.submit(
+                            layout=layout, sub=sub, ses=ses, space=space
+                        )
+                        for task in layout.get_tasks(sub=sub, ses=ses):
+                            for run in layout.get_runs(
+                                sub=sub, ses=ses, task=task
+                            ):
+                                i = task_utils._get.submit(
                                     layout=layout,
                                     filters={
                                         "sub": str(sub),
@@ -317,112 +309,157 @@ def connectivity_flow(
                                         "task": str(task),
                                         "run": str(run),
                                         "space": str(space),
-                                        "suffix": "boldref",
+                                        "desc": "preproc",
+                                        "suffix": "bold",
                                         "extension": ".nii.gz",
                                     },
-                                ),
-                                probseg=probseg,
-                                high_pass=high_pass,
-                                low_pass=low_pass,
-                                n_non_steady_state_tr=n_non_steady_state_tr,
-                            )
-
-                            confounds = task_utils.update_confounds.submit(
-                                out
-                                / "connectivity-confounds"
-                                / f"sub={sub}"
-                                / f"ses={ses}"
-                                / f"task={task}"
-                                / f"run={run}"
-                                / "part-0.parquet",
-                                acompcor_file=acompcor,  # type: ignore
-                                confounds=task_utils._get(
+                                )
+                                mask = task_utils._get.submit(
                                     layout=layout,
                                     filters={
                                         "sub": str(sub),
                                         "ses": str(ses),
                                         "task": str(task),
                                         "run": str(run),
-                                        "desc": "confounds",
-                                        "extension": ".tsv",
+                                        "desc": "brain",
+                                        "extension": ".nii.gz",
                                     },
-                                ),
-                                label="WM+CSF",
-                                n_non_steady_state_tr=n_non_steady_state_tr,
-                            )
+                                )
+                                acompcor = compcor.do_compcor.submit(
+                                    tmpdir_out
+                                    / "acompcor"
+                                    / f"sub={sub}"
+                                    / f"ses={ses}"
+                                    / f"task={task}"
+                                    / f"run={run}"
+                                    / f"space={space}"
+                                    / "part-0.parquet",
+                                    img=i,  # type: ignore
+                                    boldref=task_utils._get.submit(  # type: ignore
+                                        layout=layout,
+                                        filters={
+                                            "sub": str(sub),
+                                            "ses": str(ses),
+                                            "task": str(task),
+                                            "run": str(run),
+                                            "space": str(space),
+                                            "suffix": "boldref",
+                                            "extension": ".nii.gz",
+                                        },
+                                    ),
+                                    probseg=probseg,  # type: ignore
+                                    high_pass=high_pass,
+                                    low_pass=low_pass,
+                                    n_non_steady_state_tr=n_non_steady_state_tr,
+                                )
 
-                            cleaned = img.clean_img.submit(
-                                out
-                                / "connectivity-cleaned"
-                                / f"sub-{sub}_ses-{ses}_task-{task}_run-{run}_desc-preproc_bold.nii.gz",
-                                img=i,
-                                confounds_file=confounds,  # type: ignore
-                                mask_img=mask,
-                                low_pass=low_pass,
-                                high_pass=high_pass,
-                                detrend=False,
-                            )
+                                confounds = task_utils.update_confounds.submit(
+                                    tmpdir_out
+                                    / "connectivity-confounds"
+                                    / f"sub={sub}"
+                                    / f"ses={ses}"
+                                    / f"task={task}"
+                                    / f"run={run}"
+                                    / "part-0.parquet",
+                                    acompcor_file=acompcor,  # type: ignore
+                                    confounds=task_utils._get.submit(  # type: ignore
+                                        layout=layout,
+                                        filters={
+                                            "sub": str(sub),
+                                            "ses": str(ses),
+                                            "task": str(task),
+                                            "run": str(run),
+                                            "desc": "confounds",
+                                            "extension": ".tsv",
+                                        },
+                                    ),
+                                    label="WM+CSF",
+                                    n_non_steady_state_tr=n_non_steady_state_tr,
+                                )
 
-                            for e, estimator in estimators.items():
-                                for atlas, label in labels.items():
-                                    connectivity_parts.append(
-                                        get_labels_connectivity.submit(
-                                            tmpdir
-                                            / "connectivity"
-                                            / f"sub={sub}"
-                                            / f"ses={ses}"
-                                            / f"task={task}"
-                                            / f"run={run}"
-                                            / f"space={space}"
-                                            / f"atlas={atlas}"
-                                            / f"estimator={e}"
-                                            / "part-0.parquet",
-                                            img=cleaned,  # type: ignore
-                                            labels=label,
-                                            estimator=estimator,
-                                            mask_img=mask,
-                                        )
-                                    )
-                                for atlas, m in maps.items():
-                                    connectivity_parts.append(
-                                        get_maps_connectivity.submit(
-                                            tmpdir
-                                            / "connectivity"
-                                            / f"sub={sub}"
-                                            / f"ses={ses}"
-                                            / f"task={task}"
-                                            / f"run={run}"
-                                            / f"space={space}"
-                                            / f"atlas={atlas}"
-                                            / f"estimator={e}"
-                                            / "part-0.parquet",
-                                            img=cleaned,  # type: ignore
-                                            maps=m,
-                                            estimator=estimator,
-                                            mask_img=mask,
-                                        )
-                                    )
-                                for key, value in coordinates.items():
-                                    connectivity_parts.append(
-                                        get_coordinates_connectivity.submit(
-                                            tmpdir
-                                            / "connectivity"
-                                            / f"sub={sub}"
-                                            / f"ses={ses}"
-                                            / f"task={task}"
-                                            / f"run={run}"
-                                            / f"space={space}"
-                                            / f"atlas={key}"
-                                            / f"estimator={e}"
-                                            / "part-0.parquet",
-                                            img=cleaned,  # type: ignore
-                                            coordinates=value,
-                                            estimator=estimator,
-                                        )
-                                    )
+                                cleaned = img.clean_img.submit(
+                                    tmpdir_out
+                                    / "connectivity-cleaned"
+                                    / f"sub-{sub}_ses-{ses}_task-{task}_run-{run}_desc-preproc_bold.nii.gz",
+                                    img=i,  # type: ignore
+                                    confounds_file=confounds,  # type: ignore
+                                    mask_img=mask,  # type: ignore
+                                    low_pass=low_pass,
+                                    high_pass=high_pass,
+                                    detrend=False,
+                                )
+                                to_wait_for.append(
+                                    [cleaned, confounds, acompcor]
+                                )
 
-            task_utils.merge_parquet.submit(
-                files=connectivity_parts,
-                outdir=out / "connectivity",
-                partition_cols=["sub", "ses", "task"],
+                                for e, estimator in estimators.items():
+                                    for atlas, label in labels.items():
+                                        connectivity_parts.append(
+                                            get_labels_connectivity.submit(
+                                                tmpdir_connectivity
+                                                / "connectivity"
+                                                / f"sub={sub}"
+                                                / f"ses={ses}"
+                                                / f"task={task}"
+                                                / f"run={run}"
+                                                / f"space={space}"
+                                                / f"atlas={atlas}"
+                                                / f"estimator={e}"
+                                                / "part-0.parquet",
+                                                img=cleaned,  # type: ignore
+                                                labels=label,
+                                                estimator=estimator,
+                                                mask_img=mask,  # type: ignore
+                                            )
+                                        )
+                                    for atlas, m in maps.items():
+                                        connectivity_parts.append(
+                                            get_maps_connectivity.submit(
+                                                tmpdir_connectivity
+                                                / "connectivity"
+                                                / f"sub={sub}"
+                                                / f"ses={ses}"
+                                                / f"task={task}"
+                                                / f"run={run}"
+                                                / f"space={space}"
+                                                / f"atlas={atlas}"
+                                                / f"estimator={e}"
+                                                / "part-0.parquet",
+                                                img=cleaned,  # type: ignore
+                                                maps=m,
+                                                estimator=estimator,
+                                                mask_img=mask,  # type: ignore
+                                            )
+                                        )
+                                    for key, value in coordinates.items():
+                                        connectivity_parts.append(
+                                            get_coordinates_connectivity.submit(
+                                                tmpdir_connectivity
+                                                / "connectivity"
+                                                / f"sub={sub}"
+                                                / f"ses={ses}"
+                                                / f"task={task}"
+                                                / f"run={run}"
+                                                / f"space={space}"
+                                                / f"atlas={key}"
+                                                / f"estimator={e}"
+                                                / "part-0.parquet",
+                                                img=cleaned,  # type: ignore
+                                                coordinates=value,
+                                                estimator=estimator,
+                                            )
+                                        )
+
+                connectivity_future = task_utils.merge_parquet.submit(
+                    files=connectivity_parts,
+                    outdir=tmpdir_out / "connectivity",
+                    partition_cols=["sub", "ses", "task"],
+                )
+                to_wait_for.append(connectivity_future)
+
+            # now, copy to final dst, if all were processed okay
+            copy_to_dst.submit(  # type: ignore
+                src=tmpdir_out,
+                dst=out,
+                wait_for=to_wait_for,
             )

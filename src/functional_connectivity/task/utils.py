@@ -121,4 +121,5 @@ def merge_parquet(
         index=False,
         partition_cols=partition_cols,
         write_statistics=True,
+        basename_template="part-{i}.parquet",
     )
