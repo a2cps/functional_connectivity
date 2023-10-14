@@ -21,7 +21,6 @@ def _main(
     config.set({"distributed.worker.memory.target": False})
     config.set({"distributed.worker.memory.pause": False})
     config.set({"distributed.worker.memory.terminate": False})
-    config.set({"distributed.worker.memory.monitor-interval": 1000})
     config.set({"distributed.comm.retry.count": 2})
     config.set({"distributed.comm.timeouts.connect": "90s"})
     config.set({"distributed.comm.timeouts.tcp": "90s"})
