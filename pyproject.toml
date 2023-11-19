@@ -9,9 +9,7 @@ description = "Functional Connectivity for A2CPS"
 readme = "README.md"
 requires-python = ">=3.10"
 keywords = []
-authors = [
-  { name = "Patrick Sadil", email = "psadil1@jh.edu" },
-]
+authors = [{ name = "Patrick Sadil", email = "psadil1@jh.edu" }]
 classifiers = [
   "Development Status :: 4 - Beta",
   "Programming Language :: Python",
@@ -35,7 +33,7 @@ dependencies = [
   "pyarrow",
   "scipy",
   "scikit-image",
-  "scikit-learn"
+  "scikit-learn",
 ]
 
 [project.urls]
@@ -52,48 +50,25 @@ fallback-version = "23.0.1"
 
 
 [tool.hatch.envs.test]
-dependencies = [
-  "coverage[toml]>=6.5",
-  "pytest",
-]
+dependencies = ["coverage[toml]>=6.5", "pytest"]
 
 [tool.hatch.envs.test.scripts]
 test = "pytest {args:tests}"
 test-cov = "coverage run -m pytest {args:tests}"
-cov-report = [
-  "- coverage combine",
-  "coverage report",
-]
-cov = [
-  "test-cov",
-  "cov-report",
-]
+cov-report = ["- coverage combine", "coverage report"]
+cov = ["test-cov", "cov-report"]
 
 [[tool.hatch.envs.all.matrix]]
-python = ["3.10", "3.11"]
+python = ["3.10", "3.11", "3.12"]
 
 [tool.hatch.envs.lint]
 detached = true
-dependencies = [
-  "black>=23.1.0",
-  "mypy>=1.0.0",
-  "ruff>=0.0.243",
-]
+dependencies = ["black>=23.1.0", "mypy>=1.0.0", "ruff>=0.0.243"]
 [tool.hatch.envs.lint.scripts]
 typing = "mypy --install-types --non-interactive {args:src/functional_connectivity tests}"
-style = [
-  "ruff {args:.}",
-  "black --check --diff {args:.}",
-]
-fmt = [
-  "black {args:.}",
-  "ruff --fix {args:.}",
-  "style",
-]
-all = [
-  "style",
-  "typing",
-]
+style = ["ruff {args:.}", "black --check --diff {args:.}"]
+fmt = ["black {args:.}", "ruff --fix {args:.}", "style"]
+all = ["style", "typing"]
 
 [tool.black]
 target-version = ["py37"]
@@ -136,11 +111,18 @@ ignore = [
   # Allow boolean positional values in function calls, like `dict.get(... True)`
   "FBT003",
   # Ignore checks for possible passwords
-  "S105", "S106", "S107",
+  "S105",
+  "S106",
+  "S107",
   # Ignore complexity
-  "C901", "PLR0911", "PLR0912", "PLR0913", "PLR0915",
+  "C901",
+  "PLR0911",
+  "PLR0912",
+  "PLR0913",
+  "PLR0915",
   # Allow boolean kwargs in function definitions
-  "FBT001", "FBT002",
+  "FBT001",
+  "FBT002",
 ]
 unfixable = [
   # Don't touch unused imports
@@ -161,17 +143,14 @@ ban-relative-imports = "all"
 source_pkgs = ["functional_connectivity", "tests"]
 branch = true
 parallel = true
-omit = [
-  "src/functional_connectivity/__about__.py",
-]
+omit = ["src/functional_connectivity/__about__.py"]
 
 [tool.coverage.paths]
-functional_connectivity = ["src/functional_connectivity", "*/functional_connectivity/src/functional_connectivity"]
+functional_connectivity = [
+  "src/functional_connectivity",
+  "*/functional_connectivity/src/functional_connectivity",
+]
 tests = ["tests", "*/functional_connectivity/tests"]
 
 [tool.coverage.report]
-exclude_lines = [
-  "no cov",
-  "if __name__ == .__main__.:",
-  "if TYPE_CHECKING:",
-]
+exclude_lines = ["no cov", "if __name__ == .__main__.:", "if TYPE_CHECKING:"]
