@@ -1,9 +1,9 @@
 from pathlib import Path
 
 import click
-import prefect_dask
-from dask import config
+from distributed.deploy import subprocess
 
+from functional_connectivity import task_runners
 from functional_connectivity.flows.connectivity import connectivity_flow
 
 
@@ -13,24 +13,14 @@ def _main(
     n_workers: int = 1,
     threads_per_worker: int = 1,
 ) -> None:
-    config.set(
-        {"distributed.scheduler.active-memory-manager.measure": "managed"}
-    )
-    config.set({"distributed.worker.memory.rebalance.measure": "managed"})
-    config.set({"distributed.worker.memory.spill": False})
-    config.set({"distributed.worker.memory.target": False})
-    config.set({"distributed.worker.memory.pause": False})
-    config.set({"distributed.worker.memory.terminate": False})
-    config.set({"distributed.comm.timeouts.connect": "90s"})
-    config.set({"distributed.comm.timeouts.tcp": "90s"})
-
     connectivity_flow.with_options(
-        task_runner=prefect_dask.DaskTaskRunner(
+        task_runner=task_runners.DaskTaskRunner(
+            cluster_class=subprocess.SubprocessCluster,
             cluster_kwargs={
                 "n_workers": n_workers,
                 "threads_per_worker": threads_per_worker,
                 "dashboard_address": None,
-            }
+            },
         )
     )(subdirs=fmriprep_subdirs, outdirs=output_dirs, return_state=True)
 
